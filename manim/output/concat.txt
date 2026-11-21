@@ -1,0 +1,6 @@
+file '/home/frqme/Desktop/projects/wengcheng/manim/media/videos/01_intro/1080p60/IntroScene.mp4'
+file '/home/frqme/Desktop/projects/wengcheng/manim/media/videos/02_route/1080p60/RouteScene.mp4'
+file '/home/frqme/Desktop/projects/wengcheng/manim/media/videos/03_gate/1080p60/GateScene.mp4'
+file '/home/frqme/Desktop/projects/wengcheng/manim/media/videos/04_decoys/1080p60/DecoysScene.mp4'
+file '/home/frqme/Desktop/projects/wengcheng/manim/media/videos/05_report/1080p60/ReportScene.mp4'
+file '/home/frqme/Desktop/projects/wengcheng/manim/media/videos/06_outro/1080p60/OutroScene.mp4'

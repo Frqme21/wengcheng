@@ -1,0 +1,41 @@
+{
+  "name": "wengcheng",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Wèngchéng (瓮城) — adaptive cyber-deception platform with a zero-token outer gate sentinel and on-demand AI synthetic decoys.",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development tsx watch src/server/index.ts",
+    "build": "npm run typecheck && vite build && tsc -p tsconfig.server.json",
+    "typecheck": "tsc --noEmit",
+    "start": "NODE_ENV=production node dist/server/server/index.js",
+    "serve": "npm run build && npm start",
+    "attacker": "python3 scripts/attacker.py"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "openai": "^4.104.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.7",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@types/ws": "^8.5.13",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "cross-env": "^7.0.3",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

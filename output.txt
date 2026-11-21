@@ -1,0 +1,407 @@
+瓮
+CHENG
+WÈNGCHÉNG
+v1.0
+ADAPTIVE CYBER-DECEPTION GRID · ZERO-TOKEN OUTER GATE · ON-DEMAND AI SYNTHESIS
+
+C2 LINK LIVE
+LLM ARMED · NVIDIA
+PORTCULLIS STANDBY
+15:58:44 UTC
+◫ SPLIT VIEW ON
+Active Trapped Sessions
+04
+8 diverted · 3 passed clean
+Attacker Seconds Wasted
+25.3
+adaptive tarpit 400ms → 3500ms
+AI Wakeups / LLM Calls
+02
+0 in flight · 1009 tokens spent
+Estimated Tokens Saved
+6,760
+8 heuristic · 1 cache replays
+Judge Simulator
+1-click traffic injection
+
+Legitimate User
+0-token passthrough
+
+Fire SQLi Dump
+cached ledger decoy
+
+.env + /admin Recon
+canary secrets
+
+Novel Probe
+wakes AI once
+
+Slow-Drip Scraper
+byte-by-byte tarpit
+⬇ Drop 403 Portcullis
+Live Deception Topology
+UP 76s
+GATE OPEN
+PRODUCTION ZONE / INNER CITADEL
+WÈNGCHÉNG URN COURTYARD / DECOY FABRIC
+INBOUND
+TRAFFIC
+11 req classified
+1FF8
+D53D
+BC6F
+BC7E
+SENTINEL
+OUTER GATE
+400.25µs avg
+0 TOKEN FILTER
+regex · signatures · windows
+INNER CITADEL
+AegisCloud production portal
+PROTECTED
+URN COURTYARD
+synthetic decoy courtyard
+TRAPPING
+瓮 城 · DOUBLE WALL
+Decoy Auth DB
+synthetic ledger · TOUCHED
+Synthetic .env Vault
+canary secrets · TOUCHED
+Fake Payroll API
+AI decoy fabric · TOUCHED
+Tarpit Sink
+slow-drip egress · TOUCHED
+LEGEND
+PASSTHROUGH / DECOY
+TARPIT CONTAINMENT
+HOSTILE / LOCKDOWN
+Live Intercept Stream
+8 frames
+
+SCRAPING
+tarpit
+GET /portal/api/export?format=csv&page=2
+SIMULATOR_FORCED_PROBE
+5043ms · 911FF8
+↳ DIVERTED_TO_URN
+
+SCRAPING
+tarpit
+GET /portal/api/export?format=csv&page=1
+SIMULATOR_FORCED_PROBE
+5799ms · 911FF8
+↳ DIVERTED_TO_URN
+
+SQLI
+decoy
+GET /portal/api/v2/ledger/reconcile?table=wp_quantum_ledger&filter=id%27%20OR%201%3D1--&debug=true
+SQL_TAUTOLOGY
+5621ms · 6ED53D
+↳ DIVERTED_TO_URN
+
+RECON
+decoy
+GET /wp-admin
+ADMIN_SURFACE_PROBE
+2501ms · EEBC6F
+↳ DIVERTED_TO_URN
+
+RECON
+decoy
+GET /admin
+ADMIN_SURFACE_PROBE
+1602ms · EEBC6F
+↳ DIVERTED_TO_URN
+
+RECON
+decoy
+GET /.env
+SENSITIVE_FILE_PROBE
+904ms · EEBC6F
+↳ DIVERTED_TO_URN
+
+SQLI
+decoy
+GET /portal/api/billing?invoice=1%27%20UNION%20SELECT%20*%20FROM%20information_schema.tables--
+SQL_UNION_SELECT
+2947ms · F8BC7E
+↳ DIVERTED_TO_URN
+
+SQLI
+decoy
+GET /portal/api/overview?q=id%27%20OR%201%3D1--
+SQL_TAUTOLOGY
+908ms · F8BC7E
+↳ DIVERTED_TO_URN
+Deception Cache
+7 entries · 0 tokens
+/api/export
+procedural
+scraping · tarpit-sink
+1 hits
+/api/overview
+procedural
+sqli · decoy-auth-db
+0 hits
+/api/billing
+ai
+sqli · decoy-payroll
+0 hits
+/.env
+procedural
+recon · decoy-env-vault
+0 hits
+/admin
+procedural
+recon · decoy-auth-db
+0 hits
+/wp-admin
+procedural
+recon · decoy-auth-db
+0 hits
+/api/v2/ledger/reconcile
+ai
+sqli · decoy-payroll
+0 hits
+Attacker View // Captured Responses
+terminal
+browser
+root@wengcheng:~# curl -X GET http://aegiscloud.invalid/portal/api/export?format=csv&page=2
+← HTTP/1.1 200 · 5048ms · DECOY
+ledger_id,entity,amount_usd,cycle,region,canary
+LGR-90000,Synthetic Entity 0,86600.24,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90001,Synthetic Entity 1,6505.11,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90002,Synthetic Entity 2,40240.55,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90003,Synthetic Entity 3,33994.16,2026-Q2,APAC,WENGCHENG-DECOY
+LGR-90004,Synthetic Entity 4,78294.78,2026-Q3,APAC,WENGCHENG-DECOY
+LGR-90005,Synthetic Entity 5,14349.49,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90006,Synthetic Entity 6,49982.81,2026-Q3,APAC,WENGCHENG-DECOY
+LGR-90007,Synthetic Entity 7,21290.71,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90008,Synthetic Entity 8,63142.28,2026-Q3,APAC,WENGCHENG-DECOY
+LGR-90009,Synthetic Entity 9,7689.52,2026-Q1,APAC,WENGCHENG-DECOY
+LGR-90010,Synthetic Entity 10,82803.97,2026-Q3,APAC,WENGCHENG-DECOY
+LGR-90011,Synthetic Entity 11,61846.92,2026-Q1,APAC,WENGCHENG-DECOY
+LGR-90012,Synthetic Entity 12,41677.74,2026-Q1,APAC,WENGCHENG-DECOY
+LGR-90013,Synthetic Entity 13,69990.58,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90014,Synthetic Entity 14,76626.89,2026-Q3,APAC,WENGCHENG-DECOY
+LGR-90015,Synthetic Entity 15,17819.81,2026-Q2,APAC,WENGCHENG-DECOY
+LGR-90016,Synthetic Entity 16,7757.64,2026-Q1,APAC,WENGCHENG-DECOY
+LGR-90017,Synthetic Entity 17,70407.09,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90018,Synthetic Entity 18,63150.81,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90019,Synthetic Entity 19,5701.59,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90020,Synthetic Entity 20,48321.53,2026-Q2,APAC,WENGCHENG-DECOY
+LGR-90021,Synthetic Entity 21,7612.57,2026-Q2,APAC,WENGCHENG-DECOY
+LGR-90022,Synthetic Entity 22,84248.31,2026-Q3,APAC,WENGCHENG-DECOY
+LGR-90023,Synthetic Entity 23,76785.37,2026-Q1,APAC,WENGCHENG-DECOY
+LGR-90024,Synthetic Entity 24,4568.64,2026-Q2,APAC,WENGCHENG-DECOY
+LGR-90025,Synthetic Entity 25,78223.40,2026-Q1,APAC,WENGCHENG-DECOY
+
+… [truncated]
+root@wengcheng:~# curl -X GET http://aegiscloud.invalid/portal/api/export?format=csv&page=1
+← HTTP/1.1 200 · 5802ms · DECOY
+// Large fake CSV dripped byte-by-byte into the tarpit.
+ledger_id,entity,amount_usd,cycle,region,canary
+LGR-90000,Synthetic Entity 0,86600.24,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90001,Synthetic Entity 1,6505.11,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90002,Synthetic Entity 2,40240.55,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90003,Synthetic Entity 3,33994.16,2026-Q2,APAC,WENGCHENG-DECOY
+LGR-90004,Synthetic Entity 4,78294.78,2026-Q3,APAC,WENGCHENG-DECOY
+LGR-90005,Synthetic Entity 5,14349.49,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90006,Synthetic Entity 6,49982.81,2026-Q3,APAC,WENGCHENG-DECOY
+LGR-90007,Synthetic Entity 7,21290.71,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90008,Synthetic Entity 8,63142.28,2026-Q3,APAC,WENGCHENG-DECOY
+LGR-90009,Synthetic Entity 9,7689.52,2026-Q1,APAC,WENGCHENG-DECOY
+LGR-90010,Synthetic Entity 10,82803.97,2026-Q3,APAC,WENGCHENG-DECOY
+LGR-90011,Synthetic Entity 11,61846.92,2026-Q1,APAC,WENGCHENG-DECOY
+LGR-90012,Synthetic Entity 12,41677.74,2026-Q1,APAC,WENGCHENG-DECOY
+LGR-90013,Synthetic Entity 13,69990.58,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90014,Synthetic Entity 14,76626.89,2026-Q3,APAC,WENGCHENG-DECOY
+LGR-90015,Synthetic Entity 15,17819.81,2026-Q2,APAC,WENGCHENG-DECOY
+LGR-90016,Synthetic Entity 16,7757.64,2026-Q1,APAC,WENGCHENG-DECOY
+LGR-90017,Synthetic Entity 17,70407.09,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90018,Synthetic Entity 18,63150.81,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90019,Synthetic Entity 19,5701.59,2026-Q4,APAC,WENGCHENG-DECOY
+LGR-90020,Synthetic Entity 20,48321.53,2026-Q2,APAC,WENGCHENG-DECOY
+LGR-90021,Synthetic Entity 21,7612.57,2026-Q2,APAC,WENGCHENG-DECOY
+LGR-90022,Synthetic Entity 22,84248.31,2026-Q3,APAC,WENGCHENG-DECOY
+LGR-90023,Synthetic Entity 23,76785.37,2026-Q1,APAC,WENGCHENG-DECOY
+LGR-90024,Synthetic Entity 24,4568.64,2026-Q2,APAC,WENGCHENG-DECOY
+LGR-90025,Synthetic Entity 25,78223.40,2026-Q1,APAC,WENGCHENG-DECOY
+
+… [truncated]
+root@wengcheng:~# curl -X GET http://aegiscloud.invalid/portal/api/v2/ledger/reconcile?table=wp_quantum_ledger&filter=id'%20OR%201%3D1--&debug=true
+← HTTP/1.1 200 · 5628ms · DECOY[AI-SYNTHESIZED]
+// Unknown endpoint + custom payload: cache miss wakes the LLM once to invent a decoy table.
+{
+  "_canary": "WENGCHENG_AI_SYNTHESIZED_DECOY",
+  "service": "QuantumLedger",
+  "table": "wp_quantum_ledger",
+  "columns": [
+    "id",
+    "transaction_hash",
+    "amount",
+    "status",
+    "timestamp",
+    "account_id"
+  ],
+  "rows": [
+    {
+      "id": 1001,
+      "transaction_hash": "0x7a3f9c2d8b4e5f6a",
+      "amount": 250.75,
+      "status": "pending",
+      "timestamp": "2024-03-15T08:42:19Z",
+      "account_id": "ACC-001"
+    },
+    {
+      "id": 1002,
+      "transaction_hash": "0x1b8e7d4f9c2a3b5e",
+      "amount": -89.99,
+      "status": "settled",
+      "timestamp": "2024-03-15T08:43:02Z",
+      "account_id": "ACC-002"
+    },
+    {
+      "id": 1003,
+      "transaction_hash": "0xf2c5a1b3d7e8904a",
+      "amount": 1500,
+      "status": "processing",
+      "timestamp": "2024-03-15T08:44:55Z",
+      "account_id": "ACC-003"
+    }
+  ],
+  "notice": "[INTERNAL] Synthetic ledger data for performance testing - not production",
+  "generated_by": "NVIDIA NIM · poolside/laguna-xs-2.1",
+  "requested_path": "/portal/api/v2/ledger/reconcile?table=wp_quantum_ledger&filter=id%27%20OR%201%3D1--&debug=true"
+}
+root@wengcheng:~# curl -X GET http://aegiscloud.invalid/wp-admin
+← HTTP/1.1 200 · 2505ms · DECOY
+<!doctype html><html><head><title>AegisCloud :: Inner Citadel Admin</title></head>
+<body style="font-family:monospace;background:#080c12;color:#9fb6c6;padding:32px">
+<h1 style="color:#00e5ff">AEGISCLOUD / CONTROL PLANE</h1>
+<p>Administrative console mirror — <b>SYNTHETIC SESSION</b></p>
+<table border="1" cellpadding="8" cellspacing="0" style="border-color:#162231">
+<tr><td>bootstrap_token</td><td>eyJmYWtlX2NhbmFyeSI6dHJ1ZSwic2NvcGUiOiJkZWNveSJ9</td></tr>
+<tr><td>node</td><td>inner-citadel-03.aegis.invalid</td></tr>
+<tr><td>audit</td><td>ALL ACCESS RECORDED BY WENGCHENG</td></tr>
+</table></body></html>
+root@wengcheng:~# curl -X GET http://aegiscloud.invalid/admin
+← HTTP/1.1 200 · 1606ms · DECOY
+// Fake admin console with canary bootstrap token.
+<!doctype html><html><head><title>AegisCloud :: Inner Citadel Admin</title></head>
+<body style="font-family:monospace;background:#080c12;color:#9fb6c6;padding:32px">
+<h1 style="color:#00e5ff">AEGISCLOUD / CONTROL PLANE</h1>
+<p>Administrative console mirror — <b>SYNTHETIC SESSION</b></p>
+<table border="1" cellpadding="8" cellspacing="0" style="border-color:#162231">
+<tr><td>bootstrap_token</td><td>eyJmYWtlX2NhbmFyeSI6dHJ1ZSwic2NvcGUiOiJkZWNveSJ9</td></tr>
+<tr><td>node</td><td>inner-citadel-03.aegis.invalid</td></tr>
+<tr><td>audit</td><td>ALL ACCESS RECORDED BY WENGCHENG</td></tr>
+</table></body></html>
+root@wengcheng:~# curl -X GET http://aegiscloud.invalid/.env
+← HTTP/1.1 200 · 909ms · DECOY
+// Synthetic secret canary returned instantly — zero model calls.
+# AegisCloud Enterprise Portal — SYNTHETIC SECRET CANARY
+NODE_ENV=production
+APP_ENV=inner-citadel
+DATABASE_URL=postgres://aegis_readonly:F4KE-CANARY-ONLY@db.internal.invalid:5432/aegis_shadow
+REDIS_URL=redis://cache.internal.invalid:6379/0
+JWT_SECRET=SYNTHETIC_CANARY_TOKEN_NOT_A_REAL_SECRET_9f3a1c
+AWS_ACCESS_KEY_ID=AKIAFAKE4DECOY7CANARY
+AWS_SECRET_ACCESS_KEY=wengcheng-synthetic-canary-do-not-use
+STRIPE_SECRET_KEY=sk_test_FAKE_WENGCHENG_CANARY_ONLY
+SLACK_WEBHOOK_URL=https://hooks.slack.test/services/FAKE/DECOY/CANARY
+# Any credential above is monitored. Access has been recorded.
+root@wengcheng:~# curl -X GET http://aegiscloud.invalid/portal/api/billing
+← HTTP/1.1 200 · 2ms · PASSTHROUGH
+// Authenticated session passes the outer gate untouched.
+{"account":"AEGIS-ENT-0042","currency":"USD","invoices":[{"invoice":"INV-2026-1104","plan":"Enterprise Treasury","amount":48200,"currency":"USD","status":"paid","due":"2026-11-01"},{"invoice":"INV-2026-1201","plan":"Audit Archive Add-on","amount":3800,"currency":"USD","status":"open","due":"2026-12-01"}]}
+root@wengcheng:~# curl -X GET http://aegiscloud.invalid/portal/api/overview
+← HTTP/1.1 200 · 5ms · PASSTHROUGH
+{"service":"aegiscloud-enterprise-portal","environment":"inner-citadel","status":"operational","metrics":{"transactions_today":12481,"settled_volume_usd":8420000,"active_tenants":248,"uptime_pct":99.99},"region":"ap-southeast-1","generated_at":"2026-11-21T15:58:10.816Z"}
+root@wengcheng:~# curl -X GET http://aegiscloud.invalid/portal/api/billing?invoice=1%27%20UNION%20SELECT%20*%20FROM%20information_schema.tables--
+← HTTP/1.1 200 · 2956ms · DECOY[AI-SYNTHESIZED]
+{
+  "_canary": "WENGCHENG_AI_SYNTHESIZED_DECOY",
+  "service": "billing-api",
+  "table": "invoices",
+  "columns": [
+    "invoice_id",
+    "customer_name",
+    "amount",
+    "status"
+  ],
+  "rows": [
+    {
+      "invoice_id": "INV-2024-001",
+      "customer_name": "Acme Corp",
+      "amount": 1250,
+      "status": "paid"
+    },
+    {
+      "invoice_id": "INV-2024-002",
+      "customer_name": "Beta Systems",
+      "amount": 890.5,
+      "status": "pending"
+    }
+  ],
+  "notice": "internal billing system - synthetic data only",
+  "generated_by": "NVIDIA NIM · poolside/laguna-xs-2.1",
+  "requested_path": "/portal/api/billing?invoice=1%27%20UNION%20SELECT%20*%20FROM%20information_schema.tables--"
+}
+root@wengcheng:~# curl -X GET http://aegiscloud.invalid/portal/api/overview?q=id'%20OR%201%3D1--
+← HTTP/1.1 200 · 959ms · DECOY
+// Classic SQL tautology served from cached synthetic ledger.
+{
+  "query": "SELECT * FROM aegis_shadow_ledger WHERE 1=1",
+  "_deception": "SYNTHETIC SCHEMA DUMP — CANARY",
+  "table": "aegis_shadow_ledger",
+  "columns": [
+    "ledger_id",
+    "entity",
+    "amount_usd",
+    "settlement_state"
+  ],
+  "rows": [
+    {
+      "ledger_id": "LGR-90014",
+      "entity": "Orchid Holdings Ltd",
+      "amount_usd": 48210.55,
+      "settlement_state": "cleared"
+    },
+    {
+      "ledger_id": "LGR-90015",
+      "entity": "Northwind Trust",
+      "amount_usd": 119004.2,
+      "settlement_state": "pending"
+    },
+    {
+      "ledger_id": "LGR-90016",
+      "entity": "Kestrel Dynamics",
+      "amount_usd": 7310,
+      "settlement_state": "cleared"
+    }
+  ],
+  "warning": "{\"q\":\"id' OR 1=1--\"}"
+}
+Token Economy Engine
+LLM ARMED
+Provider
+poolside/laguna-xs-2.1
+AI wakeups
+2
+Tokens spent
+1009
+Tokens saved
+6,760
+Shortcut ratio
+87%
+Mode: nvidia. Normal traffic and known probes never call a model; only novel cache misses and explicit analyst reports wake the LLM.
+
+Operator Notes
+▸ Clean traffic reaches /portal/* with no model calls.
+▸ Known probes replay cached decoys with 0 tokens.
+▸ Novel cache misses wake the LLM once, then cache the result.
+▸ Click any hostile session pip on the map to open Threatparse.
+▸ Run python3 scripts/attacker.py for a full external attack demo.
+瓮城 · The Outer Urn Wall — let them enter the empty city
+11 classified · 8 diverted · 2 AI wakeups
