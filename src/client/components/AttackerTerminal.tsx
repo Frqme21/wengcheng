@@ -9,7 +9,7 @@ interface Props {
 }
 
 function plainText(value: string): string {
-  return value.replace(/\s—\s/g, ', ');
+  return value.replace(/\s\u2014\s/g, ', ');
 }
 
 function responseTone(response: SimulatorResponse): { label: string; className: string } {
@@ -40,11 +40,11 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
 
   return (
     <section className="surface flex min-h-[420px] flex-col overflow-hidden" aria-labelledby="attacker-title">
-      <div className="border-b border-line-soft bg-rust/[0.035] px-5 py-3.5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="border-b border-line-soft bg-rust/[0.035] px-6 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-rust" />
-            <div>
+            <div className="flex flex-col gap-2">
               <div className="section-label">Captured from the fake city</div>
               <h3 id="attacker-title" className="text-sm font-semibold text-ink">What the attacker sees</h3>
             </div>
@@ -54,7 +54,7 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
               <button
                 key={item}
                 onClick={() => setTab(item)}
-                className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                className={`focus-ring min-h-11 rounded-lg px-4 py-2 text-xs font-medium transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                   tab === item ? 'bg-teal/10 text-teal' : 'text-faint hover:text-muted'
                 }`}
                 aria-pressed={tab === item}
@@ -70,21 +70,21 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
       </div>
 
       {current && (
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line-soft bg-clay/[0.045] px-5 py-2.5 text-xs text-clay">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line-soft bg-clay/[0.045] px-6 py-3 text-xs text-clay">
           <span className="num truncate">Sending {current.label}: {current.path}</span>
           <span className="shrink-0">Waiting for reply</span>
         </div>
       )}
 
       {responses.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center px-8 py-14 text-center">
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 py-16 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-line bg-raised text-teal">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="m5 7 7 5-7 5V7Zm9 0h5m-5 5h5m-5 5h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <p className="mt-4 text-sm font-medium text-ink">No replies captured yet</p>
-          <p className="mt-1 max-w-[38ch] text-xs leading-relaxed text-faint">
+          <p className="text-sm font-medium text-ink">No replies captured yet</p>
+          <p className="max-w-[38ch] text-xs leading-relaxed text-faint">
             Choose a request above. The real reply will appear here, exactly as the fake city sent it.
           </p>
         </div>
@@ -94,11 +94,11 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
             const tone = responseTone(response);
             return (
               <article key={response.id} className="surface-raised overflow-hidden">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line-soft px-3 py-2.5">
-                  <span className={`tag px-2 py-0.5 text-[11px] ${tone.className}`}>{tone.label}</span>
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line-soft px-4 py-3">
+                  <span className={`tag text-[11px] ${tone.className}`}>{tone.label}</span>
                   <span className="num text-[11px] text-faint">{response.latencyMs} ms</span>
                 </div>
-                <div className="space-y-2 px-3 py-3">
+                <div className="flex flex-col gap-2 px-4 py-4">
                   <div className="num break-all text-[11px] leading-relaxed text-teal">
                     {response.method} http://aegiscloud.invalid{response.path}
                   </div>
@@ -109,12 +109,12 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
                   {response.aiWakeup && (
                     <div className="text-[11px] text-plum">The AI was used once to invent this answer.</div>
                   )}
-                  <pre className="term-line num max-h-64 overflow-auto rounded-lg border border-line-soft bg-paper p-3 text-[11px] leading-relaxed text-muted">
+                  <pre className="term-line num max-h-64 overflow-auto rounded-lg border border-line-soft bg-paper p-4 text-[11px] leading-relaxed text-muted">
                     {response.body}
                   </pre>
                   <button
                     onClick={() => onInspect(response.sessionId)}
-                    className="focus-ring text-xs font-medium text-teal hover:text-ink"
+                    className="focus-ring -mx-2 min-h-11 px-2 text-xs font-medium text-teal transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:text-ink"
                   >
                     Inspect this session
                   </button>
@@ -142,7 +142,7 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
             </div>
           ) : (
             <div className="surface-raised overflow-hidden">
-              <div className="flex items-center gap-1.5 border-b border-line-soft px-4 py-2.5">
+              <div className="flex items-center gap-2 border-b border-line-soft px-4 py-3">
                 <span className="h-2 w-2 rounded-full bg-rust/70" />
                 <span className="h-2 w-2 rounded-full bg-clay/70" />
                 <span className="h-2 w-2 rounded-full bg-sage/70" />

@@ -89,12 +89,12 @@ export default function ControlBar({
   const actions = buildActions(aiReady);
 
   return (
-    <section className="surface p-5 sm:p-6" aria-labelledby="try-title">
+    <section className="surface p-6 sm:p-8" aria-labelledby="try-title">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
+        <div className="flex max-w-[65ch] flex-col gap-2">
           <div className="section-label">Interactive demo</div>
-          <h2 id="try-title" className="mt-1 text-lg font-semibold text-ink">Send a request and watch what happens</h2>
-          <p className="mt-1 max-w-[62ch] text-sm text-muted">
+          <h2 id="try-title" className="text-lg font-semibold text-ink">Send a request and watch what happens</h2>
+          <p className="text-sm leading-relaxed text-muted">
             Every button sends a real HTTP request to this server. The reply appears in the attacker view on the right.
           </p>
         </div>
@@ -114,7 +114,7 @@ export default function ControlBar({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {actions.map((item) => {
           const tone = TONES[item.tone];
           return (
@@ -123,17 +123,17 @@ export default function ControlBar({
               data-tour-id={TOUR_IDS[item.action]}
               disabled={disabled}
               onClick={() => onSimulate(item.action)}
-              className={`focus-ring flex items-start gap-3 rounded-lg border border-line px-4 py-3.5 text-left disabled:cursor-not-allowed disabled:opacity-50 ${tone.bg} ${tone.border}`}
+              className={`focus-ring flex min-h-11 items-start gap-4 rounded-lg border border-line px-4 py-4 text-left transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 ${tone.bg} ${tone.border}`}
             >
               <span
-                className="num mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-line bg-paper text-xs"
+                className="num flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-line bg-paper text-xs"
                 style={{ color: tone.dot }}
               >
                 {item.step}
               </span>
-              <span className="min-w-0">
+              <span className="flex min-w-0 flex-col gap-2">
                 <span className="block text-sm font-semibold text-ink">{item.label}</span>
-                <span className={`mt-0.5 block text-xs ${tone.text}`}>{item.outcome}</span>
+                <span className={`block text-xs ${tone.text}`}>{item.outcome}</span>
               </span>
             </button>
           );
@@ -143,20 +143,20 @@ export default function ControlBar({
           data-tour-id="gate-toggle"
           disabled={disabled}
           onClick={() => onSimulate('portcullis')}
-          className={`focus-ring flex items-start gap-3 rounded-lg border px-4 py-3.5 text-left disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`focus-ring flex min-h-11 items-start gap-4 rounded-lg border px-4 py-4 text-left transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 ${
             engaged
               ? 'border-rust/50 bg-rust/[0.07]'
               : 'border-line bg-card hover:border-rust/40'
           }`}
         >
-          <span className={`num mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-line bg-paper text-xs ${engaged ? 'text-rust' : 'text-faint'}`}>
+          <span className={`num flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-line bg-paper text-xs ${engaged ? 'text-rust' : 'text-faint'}`}>
             {engaged ? 'ON' : 'OFF'}
           </span>
-          <span className="min-w-0">
+          <span className="flex min-w-0 flex-col gap-2">
             <span className="block text-sm font-semibold text-ink">
               {engaged ? 'Turn off the 403 gate' : 'Turn on the 403 gate'}
             </span>
-            <span className="mt-0.5 block text-xs text-rust">
+            <span className="block text-xs text-rust">
               {engaged ? 'Hostile traffic is being blocked.' : 'Hostile traffic will get a 403 response.'}
             </span>
           </span>

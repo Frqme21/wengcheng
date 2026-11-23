@@ -31,7 +31,7 @@ const CATEGORY_SUMMARY: Record<string, string> = {
 };
 
 function plainText(value: string): string {
-  return value.replace(/\s—\s/g, ', ');
+  return value.replace(/\s\u2014\s/g, ', ');
 }
 
 function riskTone(score: number, hostile: boolean) {
@@ -106,22 +106,22 @@ export default function SessionDrawer({
       <aside
         ref={asideRef}
         data-tour-id="session-drawer"
-        className="flex h-full w-full max-w-[540px] flex-col border-l border-line bg-card"
+        className="flex h-full w-full max-w-[544px] flex-col border-l border-line bg-card"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="drawer-title"
       >
-        <header className="flex items-start justify-between gap-3 border-b border-line-soft px-6 py-5">
-          <div>
+        <header className="flex items-start justify-between gap-4 border-b border-line-soft px-6 py-6">
+          <div className="flex flex-col gap-2">
             <div className="section-label">Session details</div>
-            <h2 id="drawer-title" className="num mt-1 text-lg font-semibold text-ink">{session.id}</h2>
-            <p className="mt-0.5 text-xs text-faint">Started {new Date(session.startedAt).toLocaleTimeString()}</p>
+            <h2 id="drawer-title" className="num text-lg font-semibold text-ink">{session.id}</h2>
+            <p className="text-xs text-faint">Started {new Date(session.startedAt).toLocaleTimeString()}</p>
           </div>
           <button
             ref={closeRef}
             onClick={onClose}
-            className="focus-ring flex h-9 w-9 items-center justify-center rounded-xl border border-line text-muted hover:border-rust/50 hover:text-rust"
+            className="focus-ring flex h-11 w-11 items-center justify-center rounded-xl border border-line text-muted transition-[color,border-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-rust/50 hover:text-rust active:scale-[0.98]"
             aria-label="Close session details"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -130,20 +130,27 @@ export default function SessionDrawer({
           </button>
         </header>
 
-        <div className="flex-1 space-y-5 overflow-y-auto px-6 py-6">
-          <div className="surface-raised p-5">
-            <div className="flex items-center gap-5">
+        <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
+          <div className="surface-raised p-6">
+            <div className="flex items-center gap-6">
               <Gauge score={session.riskScore} hostile={hostile} />
-              <div className="min-w-0">
-                <span className="tag" style={{ color: tone.color, borderColor: `${tone.color}55`, backgroundColor: `${tone.color}12` }}>
+              <div className="flex min-w-0 flex-col gap-4">
+                <span
+                  className="tag"
+                  style={{
+                    color: tone.color,
+                    borderColor: `color-mix(in oklch, ${tone.color} 33%, transparent)`,
+                    backgroundColor: `color-mix(in oklch, ${tone.color} 7%, transparent)`,
+                  }}
+                >
                   {tone.label}
                 </span>
-                <p className="mt-3 text-sm leading-relaxed text-ink">
+                <p className="text-sm leading-relaxed text-ink">
                   {hostile
                     ? `This session made ${session.requestCount} ${session.requestCount === 1 ? 'request' : 'requests'}. ${CATEGORY_SUMMARY[session.category] ?? 'It looked suspicious.'}`
                     : 'This session made normal requests and reached the real app.'}
                 </p>
-                <p className="mt-1 text-xs leading-relaxed text-faint">
+                <p className="text-xs leading-relaxed text-faint">
                   {hostile
                     ? `We kept it busy for ${seconds.toFixed(1)} seconds and showed it ${session.decoysTouched.length} fake ${session.decoysTouched.length === 1 ? 'answer' : 'answers'}.`
                     : 'No fake answers were shown and no AI was used.'}
@@ -153,7 +160,7 @@ export default function SessionDrawer({
           </div>
 
           <Section title="The short version">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <Stat label="Requests" value={String(session.requestCount)} />
               <Stat label="Time wasted by attacker" value={`${seconds.toFixed(1)}s`} accent={PALETTE.clay} />
               <Stat label="Times AI was used" value={String(session.aiWakeups)} accent={PALETTE.plum} />
@@ -178,7 +185,7 @@ export default function SessionDrawer({
             ) : (
               <div className="space-y-2">
                 {session.payloads.map((payload) => (
-                  <div key={payload.id} className="surface-raised p-3">
+                  <div key={payload.id} className="surface-raised p-4">
                     <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
                       <span className="font-medium text-rust">{plainText(payload.signature)}</span>
                       <span className="text-faint">{CATEGORY_SUMMARY[payload.category] ?? payload.category}</span>
@@ -194,9 +201,9 @@ export default function SessionDrawer({
             {session.pathHistory.length === 0 ? (
               <div className="text-xs text-faint">No requests were recorded.</div>
             ) : (
-              <ol className="space-y-1.5">
+              <ol className="space-y-2">
                 {session.pathHistory.slice(0, 12).map((path, index) => (
-                  <li key={`${path}-${index}`} className="num flex gap-3 text-[11px] text-muted">
+                  <li key={`${path}-${index}`} className="num flex gap-4 text-[11px] text-muted">
                     <span className="shrink-0 text-faint">{String(index + 1).padStart(2, '0')}</span>
                     <span className="break-all">{plainText(path)}</span>
                   </li>
@@ -214,20 +221,20 @@ export default function SessionDrawer({
                 </div>
                 <p className="text-sm leading-relaxed text-ink">{plainText(analysis.narrative)}</p>
                 {analysis.keyFindings.length > 0 && (
-                  <ul className="space-y-1.5 text-xs leading-relaxed text-muted">
+                  <ul className="space-y-2 text-xs leading-relaxed text-muted">
                     {analysis.keyFindings.map((finding) => (
                       <li key={finding} className="flex gap-2"><span className="text-plum">•</span> {plainText(finding)}</li>
                     ))}
                   </ul>
                 )}
                 {analysis.mitre.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-2">
                     {analysis.mitre.map((item) => (
                       <span key={item} className="tag border-line text-faint">{plainText(item)}</span>
                     ))}
                   </div>
                 )}
-                <div className="border-t border-plum/15 pt-3 text-xs leading-relaxed text-muted">
+                <div className="border-t border-plum/15 pt-4 text-xs leading-relaxed text-muted">
                   <span className="font-semibold text-ink">Suggested action:</span> {plainText(analysis.recommendation)}
                 </div>
               </div>
@@ -253,10 +260,10 @@ export default function SessionDrawer({
             </button>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
-            <a className="btn btn-quiet min-h-[40px] text-xs" href={`/api/reports/${encodeURIComponent(session.id)}.md`} download>
+            <a className="btn btn-quiet min-h-11 text-xs" href={`/api/reports/${encodeURIComponent(session.id)}.md`} download>
               Download report
             </a>
-            <a className="btn btn-quiet min-h-[40px] text-xs" href={`/api/reports/${encodeURIComponent(session.id)}.json`} download>
+            <a className="btn btn-quiet min-h-11 text-xs" href={`/api/reports/${encodeURIComponent(session.id)}.json`} download>
               Download raw data
             </a>
           </div>
@@ -273,8 +280,8 @@ export default function SessionDrawer({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section>
-      <h3 className="section-label mb-3">{title}</h3>
+    <section className="flex flex-col gap-4">
+      <h3 className="section-label">{title}</h3>
       {children}
     </section>
   );
@@ -282,9 +289,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Stat({ label, value, accent = PALETTE.ink }: { label: string; value: string; accent?: string }) {
   return (
-    <div className="surface-raised p-3">
+    <div className="surface-raised p-4">
       <div className="text-[11px] leading-snug text-faint">{label}</div>
-      <div className="num mt-1 text-lg font-semibold" style={{ color: accent }}>{value}</div>
+      <div className="num mt-2 text-lg font-semibold" style={{ color: accent }}>{value}</div>
     </div>
   );
 }

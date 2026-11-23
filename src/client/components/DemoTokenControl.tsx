@@ -61,7 +61,7 @@ export default function DemoTokenControl({ required, onMessage }: Props) {
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        className={`btn min-h-[38px] gap-1.5 px-3 py-1.5 text-xs ${
+        className={`btn min-h-11 gap-2 px-4 py-2 text-xs ${
           stored ? 'border-sage/40 bg-sage/[0.07] text-sage' : 'border-rust/45 bg-rust/[0.06] text-rust'
         }`}
         onClick={() => setOpen((visible) => !visible)}
@@ -74,9 +74,9 @@ export default function DemoTokenControl({ required, onMessage }: Props) {
       </button>
 
       {open && (
-        <div className="surface-raised absolute right-0 top-full z-50 mt-2 w-72 p-3" role="group" aria-label="Demo token entry">
+        <div className="surface-raised absolute right-0 top-full z-50 mt-2 w-72 p-4" role="group" aria-label="Demo token entry">
           <div className="text-xs font-semibold text-ink">Demo access token</div>
-          <p className="mt-1 text-[11px] leading-relaxed text-faint">
+          <p className="mt-2 text-[11px] leading-relaxed text-faint">
             Saved for this tab only. Needed for simulator actions, the 403 gate, reports, and reset.
           </p>
           <input
@@ -84,17 +84,17 @@ export default function DemoTokenControl({ required, onMessage }: Props) {
             value={value}
             onChange={(event) => setValue(event.target.value)}
             onKeyDown={(event) => { if (event.key === 'Enter') handleSave(); }}
-            className="focus-ring mt-2 w-full rounded-lg border border-line bg-paper px-3 py-2 text-xs text-ink"
+            className="focus-ring mt-2 min-h-11 w-full rounded-lg border border-line bg-paper px-4 py-2 text-xs text-ink"
             placeholder="Paste demo token"
             autoComplete="off"
             spellCheck={false}
             aria-label="Demo token"
           />
           <div className="mt-2 flex gap-2">
-            <button type="button" className="btn btn-primary min-h-[34px] flex-1 px-2 py-1 text-xs" onClick={handleSave}>
+            <button type="button" className="btn btn-primary min-h-11 flex-1 px-4 py-2 text-xs" onClick={handleSave}>
               Save token
             </button>
-            <button type="button" className="btn btn-quiet min-h-[34px] px-2 py-1 text-xs" onClick={handleClear} disabled={!stored}>
+            <button type="button" className="btn btn-quiet min-h-11 px-4 py-2 text-xs" onClick={handleClear} disabled={!stored}>
               Clear
             </button>
           </div>

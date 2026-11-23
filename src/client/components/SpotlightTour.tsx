@@ -45,8 +45,10 @@ export default function SpotlightTour({ steps, currentStep, onNext, onBack, onSk
   const step = steps[currentStep]!;
   const [box, setBox] = useState<Box | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ top: MARGIN, left: MARGIN });
+  const dialogRef = useRef<HTMLDivElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const nextRef = useRef<HTMLButtonElement | null>(null);
+  const [positioned, setPositioned] = useState(false);
 
   const measure = useCallback(() => {
     const element = document.querySelector<HTMLElement>(`[data-tour-id="${step.targetId}"]`);
@@ -103,25 +105,23 @@ export default function SpotlightTour({ steps, currentStep, onNext, onBack, onSk
     let cancelled = false;
     const frames: number[] = [];
 
-    const trackFor = (durationMs: number) => {
-      const started = performance.now();
-      const tick = () => {
-        if (cancelled) return;
-        measure();
-        if (performance.now() - started < durationMs) frames.push(requestAnimationFrame(tick));
-      };
-      frames.push(requestAnimationFrame(tick));
-    };
-
     let attempts = 0;
     const locate = () => {
       if (cancelled) return;
       const element = document.querySelector<HTMLElement>(`[data-tour-id="${step.targetId}"]`);
       if (element) {
-        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        element.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center', inline: 'center' });
+        // `behavior: 'auto'` still inherits `scroll-behavior: smooth` from the
+        // html element, so the spotlight ended up chasing a moving target.
+        // Override it for this one call, then measure from the settled rect.
+        const root = document.documentElement;
+        const previous = root.style.scrollBehavior;
+        root.style.scrollBehavior = 'auto';
+        element.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
+        root.style.scrollBehavior = previous;
         measure();
-        trackFor(900);
+        frames.push(requestAnimationFrame(() => {
+          if (!cancelled) measure();
+        }));
         return;
       }
       if (attempts < 40) {
@@ -138,10 +138,15 @@ export default function SpotlightTour({ steps, currentStep, onNext, onBack, onSk
   }, [measure, step.targetId]);
 
   useEffect(() => {
-    const update = () => measure();
+    let timer: number | undefined;
+    const update = () => {
+      if (timer !== undefined) window.clearTimeout(timer);
+      timer = window.setTimeout(measure, 120);
+    };
     window.addEventListener('scroll', update, true);
     window.addEventListener('resize', update);
     return () => {
+      if (timer !== undefined) window.clearTimeout(timer);
       window.removeEventListener('scroll', update, true);
       window.removeEventListener('resize', update);
     };
@@ -163,6 +168,23 @@ export default function SpotlightTour({ steps, currentStep, onNext, onBack, onSk
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+
+      if (event.key === 'Tab') {
+        const focusable = dialogRef.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)');
+        if (!focusable?.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement;
+        if (event.shiftKey && (active === first || !dialogRef.current?.contains(active))) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && (active === last || !dialogRef.current?.contains(active))) {
+          event.preventDefault();
+          first.focus();
+        }
+        return;
+      }
+
       if (event.key === 'Escape') onSkip();
       if (event.key === 'ArrowRight') onNext();
       if (event.key === 'ArrowLeft' && currentStep > 0) onBack();
@@ -173,89 +195,86 @@ export default function SpotlightTour({ steps, currentStep, onNext, onBack, onSk
 
   useLayoutEffect(() => {
     placeTooltip();
+    const frame = requestAnimationFrame(() => setPositioned(true));
+    return () => cancelAnimationFrame(frame);
   }, [placeTooltip, step.id]);
 
-  const safeBox = box ?? { top: 0, left: 0, width: 0, height: 0, bottom: 0, right: 0 };
-
   return (
-    <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label="Product tour">
-      <div className="absolute left-0 right-0" style={{ top: 0, height: safeBox.top, background: DIM }} aria-hidden="true" />
-      <div className="absolute left-0 right-0" style={{ top: safeBox.bottom, bottom: 0, background: DIM }} aria-hidden="true" />
-      <div
-        className="absolute"
-        style={{ top: safeBox.top, left: 0, width: safeBox.left, height: safeBox.height, background: DIM }}
-        aria-hidden="true"
-      />
-      <div
-        className="absolute"
-        style={{ top: safeBox.top, left: safeBox.right, right: 0, height: safeBox.height, background: DIM }}
-        aria-hidden="true"
-      />
-
-      {box && (
+    <div ref={dialogRef} className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label="Product tour">
+      {box ? (
         <div
-          className="tour-ring pointer-events-none absolute left-0 top-0 z-[1] rounded-2xl border-2"
+          className="tour-spotlight pointer-events-none absolute left-0 top-0 z-[1]"
           style={{
             transform: `translate3d(${box.left}px, ${box.top}px, 0)`,
             width: box.width,
             height: box.height,
+            boxShadow: `0 0 0 9999px ${DIM}`,
           }}
           aria-hidden="true"
         />
+      ) : (
+        <div className="absolute inset-0" style={{ background: DIM }} aria-hidden="true" />
       )}
 
       <div
-        key={step.id}
-        ref={tooltipRef}
-        className="tour-card surface absolute z-[2] flex w-[min(520px,calc(100vw-32px))] flex-col gap-6 p-6 sm:p-8"
-        style={{ top: tooltipPos.top, left: tooltipPos.left }}
-        aria-live="polite"
+        className="tour-card-position absolute left-0 top-0 z-[2]"
+        style={{
+          transform: `translate3d(${tooltipPos.left}px, ${tooltipPos.top}px, 0)`,
+          transition: positioned ? undefined : 'none',
+        }}
       >
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="tour-seal" aria-hidden="true">瓮</span>
-            <span className="section-label">Step {currentStep + 1} of {steps.length}</span>
+        <div
+          key={step.id}
+          ref={tooltipRef}
+          className="tour-card surface flex w-[min(520px,calc(100vw-32px))] flex-col gap-6 p-6 sm:p-8"
+          aria-live="polite"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <span className="tour-seal" aria-hidden="true">瓮</span>
+              <span className="section-label">Step {currentStep + 1} of {steps.length}</span>
+            </div>
+            <div className="flex items-center gap-2" aria-hidden="true">
+              {steps.map((item, index) => (
+                <span
+                  key={item.id}
+                  className={`tour-dot ${index <= currentStep ? 'is-active' : ''}`}
+                />
+              ))}
+            </div>
           </div>
-          <div className="flex items-center gap-2" aria-hidden="true">
-            {steps.map((item, index) => (
-              <span
-                key={item.id}
-                className={`tour-dot ${index <= currentStep ? 'is-active' : ''}`}
-              />
-            ))}
-          </div>
-        </div>
 
-        <div className="flex flex-col gap-4">
-          <h3
-            className="tour-rise font-semibold tracking-[-0.02em] text-ink"
-            style={{ fontSize: 'clamp(1.25rem, 1.6vw, 1.5rem)', animationDelay: '80ms' }}
-          >
-            {step.title}
-          </h3>
-          <p
-            className="tour-rise max-w-[65ch] leading-7 text-muted"
-            style={{ fontSize: 'clamp(0.95rem, 1.05vw, 1.0625rem)', animationDelay: '140ms' }}
-          >
-            {step.body}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <button onClick={onSkip} className="focus-ring tour-quiet min-h-[44px] px-2 text-sm font-medium text-faint">
-            Skip tour
-          </button>
-          <div className="flex gap-2">
-            <button
-              onClick={onBack}
-              disabled={currentStep === 0}
-              className="btn btn-quiet min-h-[44px] px-5 py-2 text-sm"
+          <div className="flex flex-col gap-4">
+            <h3
+              className="tour-rise font-semibold tracking-[-0.02em] text-ink"
+              style={{ fontSize: 'clamp(1.25rem, 1.6vw, 1.5rem)', animationDelay: '80ms' }}
             >
-              Back
+              {step.title}
+            </h3>
+            <p
+              className="tour-rise max-w-[65ch] leading-7 text-muted"
+              style={{ fontSize: 'clamp(0.95rem, 1.05vw, 1.0625rem)', animationDelay: '140ms' }}
+            >
+              {step.body}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <button onClick={onSkip} className="focus-ring tour-quiet min-h-11 px-2 text-sm font-medium text-faint">
+              Skip tour
             </button>
-            <button ref={nextRef} onClick={onNext} className="btn btn-primary min-h-[44px] px-5 py-2 text-sm">
-              Next
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={onBack}
+                disabled={currentStep === 0}
+                className="btn btn-quiet min-h-11 px-5 py-2 text-sm"
+              >
+                Back
+              </button>
+              <button ref={nextRef} onClick={onNext} className="btn btn-primary min-h-11 px-5 py-2 text-sm">
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </div>

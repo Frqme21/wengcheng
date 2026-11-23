@@ -52,7 +52,7 @@ function Metric({
 }) {
   const color = ACCENTS[accent];
   return (
-    <div className="surface p-5" style={{ borderTop: `2px solid ${color}` }}>
+    <div className="surface p-6" style={{ borderTop: `2px solid ${color}` }}>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -60,13 +60,13 @@ function Metric({
             <span
               title={help}
               tabIndex={0}
-              className="focus-ring flex h-5 w-5 shrink-0 cursor-help items-center justify-center rounded-full border border-line text-[10px] text-faint"
+              className="focus-ring flex h-11 w-11 shrink-0 cursor-help items-center justify-center"
               aria-label={help}
             >
-              ?
+              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-line text-[10px] text-faint">?</span>
             </span>
           </div>
-          <div className="mt-3 flex items-baseline gap-1.5">
+          <div className="mt-4 flex items-baseline gap-2">
             <span className="num text-3xl font-semibold" style={{ color }}>{value}</span>
             {unit && <span className="text-sm text-faint">{unit}</span>}
           </div>

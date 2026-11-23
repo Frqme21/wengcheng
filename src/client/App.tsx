@@ -334,10 +334,10 @@ export default function App() {
   }, [enterTourStep]);
 
   return (
-    <div className="min-h-screen pb-10">
+    <div className="min-h-screen overflow-x-clip pb-10">
       <header className="sticky top-0 z-40 border-b border-line-soft bg-paper">
-        <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-3 px-5 py-3">
-          <div className="flex items-center gap-3">
+        <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-4 px-6 py-4">
+          <div className="flex items-center gap-4">
             <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-teal/40 bg-teal/[0.07]">
               <span className="text-xl font-bold leading-none text-teal">瓮</span>
             </div>
@@ -349,21 +349,21 @@ export default function App() {
 
           <div className="flex flex-wrap items-center gap-2">
             <span className={`tag ${connected ? 'border-sage/35 bg-sage/[0.07] text-sage' : 'border-rust/40 bg-rust/[0.07] text-rust'}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${connected ? 'bg-sage' : 'bg-rust'}`} />
+              <span className={`h-2 w-2 rounded-full ${connected ? 'bg-sage' : 'bg-rust'}`} />
               {connected ? 'Live updates on' : snapshot ? 'Reconnecting' : 'Connecting'}
             </span>
             <span className={`tag ${snapshot?.llm.configured ? 'border-plum/35 bg-plum/[0.07] text-plum' : 'border-line text-faint'}`}>
               {snapshot?.llm.configured ? 'AI ready' : 'Using saved decoys'}
             </span>
             <span className={`tag ${engaged ? 'border-rust/50 bg-rust/10 text-rust' : 'border-clay/35 bg-clay/[0.06] text-clay'}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${engaged ? 'bg-rust' : 'bg-clay'}`} />
+              <span className={`h-2 w-2 rounded-full ${engaged ? 'bg-rust' : 'bg-clay'}`} />
               {engaged ? '403 gate on' : '403 gate off'}
             </span>
             <DemoTokenControl required={demoAdminRequired} onMessage={pushToast} />
             <span className="tag border-line text-faint num">{clock.toISOString().slice(11, 19)} UTC</span>
             <button
               onClick={() => setSplit((v) => !v)}
-              className="btn btn-quiet min-h-[38px] px-3 py-1.5 text-xs"
+              className="btn btn-quiet min-h-11 px-4 py-2 text-xs"
               aria-pressed={split}
             >
               {split ? 'Hide attacker view' : 'Show attacker view'}
@@ -372,20 +372,20 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1800px] space-y-5 px-5 pb-12 pt-5">
-        <section className="surface p-5 sm:p-6" aria-labelledby="story-title">
-          <div className="max-w-[78ch]">
+      <main className="mx-auto max-w-[1800px] space-y-6 px-6 pb-12 pt-6">
+        <section className="surface p-6 sm:p-8" aria-labelledby="story-title">
+          <div className="flex max-w-[65ch] flex-col gap-2">
             <div className="section-label">Live demo</div>
-            <h1 id="story-title" className="mt-2 text-xl font-semibold tracking-tight text-ink sm:text-2xl">
+            <h1 id="story-title" className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold tracking-tight text-ink">
               A fake city behind a real front door
             </h1>
-            <p className="mt-2 text-sm leading-relaxed text-muted">
+            <p className="text-sm leading-relaxed text-muted">
               Normal visitors reach the real app. Suspicious requests are quietly sent to a convincing fake city.
               Every button below sends a real HTTP request to this server. The left side shows the decision,
               and the right side shows the reply the attacker receives.
             </p>
           </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
             <Step number="1" title="A request arrives" body="It could be a customer, a scanner, or a scraper." />
             <Step number="2" title="The gate decides fast" body="Known tricks get a saved fake answer. No AI needed." />
             <Step number="3" title="You watch both sides" body="The attacker sees fake data. You see what they tried." />
@@ -405,15 +405,15 @@ export default function App() {
           aiReady={aiReady}
         />
 
-        <div className={`grid gap-5 ${split ? 'xl:grid-cols-[minmax(0,1fr)_400px]' : ''}`}>
-          <div className="min-w-0 space-y-5">
+        <div className={`grid gap-6 ${split ? 'xl:grid-cols-[minmax(0,1fr)_400px]' : ''}`}>
+          <div className="min-w-0 space-y-6">
             <SectionHeading
               eyebrow="Defender view"
               title="Where the traffic goes"
               description="Click any colored dot or request to inspect what that visitor tried."
             />
             <TopologyMap snapshot={snapshot} selectedId={selectedId} onSelect={inspect} />
-            <div className="grid gap-5 lg:grid-cols-2">
+            <div className="grid gap-6 lg:grid-cols-2">
               <EventStream events={snapshot?.events ?? []} onSelect={inspect} selectedId={selectedId} />
               <CachePanel snapshot={snapshot} />
             </div>
@@ -421,7 +421,7 @@ export default function App() {
           </div>
 
           {split && (
-            <div className="min-w-0 space-y-5">
+            <div className="min-w-0 space-y-6">
               <SectionHeading
                 eyebrow="Attacker view"
                 title="What they actually see"
@@ -461,11 +461,11 @@ export default function App() {
         />
       )}
 
-      <div className="pointer-events-none fixed bottom-5 right-5 z-[60] space-y-2" aria-live="polite">
+      <div className="pointer-events-none fixed bottom-6 right-6 z-[60] space-y-2" aria-live="polite">
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`rounded-xl border bg-card px-3 py-2 text-xs ${
+            className={`rounded-xl border bg-card px-4 py-2 text-xs ${
               toast.level === 'warn'
                 ? 'border-rust/50 text-rust'
                 : toast.level === 'success'
@@ -473,7 +473,7 @@ export default function App() {
                   : 'border-teal/50 text-teal'
             }`}
           >
-            {toast.message.replace(/\s—\s/g, ', ')}
+            {toast.message.replace(/\s\u2014\s/g, ', ')}
           </div>
         ))}
       </div>
@@ -483,13 +483,13 @@ export default function App() {
 
 function Step({ number, title, body }: { number: string; title: string; body: string }) {
   return (
-    <div className="surface-raised flex gap-3 p-4">
-      <span className="num flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-line bg-paper text-xs text-teal">
+    <div className="surface-raised flex gap-4 p-4">
+      <span className="num flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-paper text-xs text-teal">
         {number}
       </span>
-      <div>
+      <div className="flex flex-col gap-2">
         <div className="text-sm font-semibold text-ink">{title}</div>
-        <div className="mt-1 text-xs leading-relaxed text-faint">{body}</div>
+        <div className="text-xs leading-relaxed text-faint">{body}</div>
       </div>
     </div>
   );
@@ -497,10 +497,10 @@ function Step({ number, title, body }: { number: string; title: string; body: st
 
 function SectionHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-3 px-1">
-      <div>
+    <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-col gap-2">
         <div className="section-label">{eyebrow}</div>
-        <h2 className="mt-0.5 text-lg font-semibold tracking-tight text-ink">{title}</h2>
+        <h2 className="text-lg font-semibold tracking-tight text-ink">{title}</h2>
       </div>
       <p className="max-w-[52ch] text-xs leading-relaxed text-faint">{description}</p>
     </div>
