@@ -39,7 +39,7 @@ Optional model keys, where either one enables AI decoy synthesis and neither mea
 ## First demo path
 
 1. Open the dashboard.
-2. Click **Take 1-min Tour** beside **Play the whole story**. The tour makes real requests and opens the report.
+2. Click **Take the guided tour** beside **Run the full demo**. The tour makes real requests and opens the report.
 3. Run `npm run attacker` in a second terminal, or use the simulator buttons in the dashboard.
 4. Click a hostile session on the topology map and try **Write a short report** or **Use AI for a deeper report**.
 5. Engage the portcullis to show the 403 gate.

@@ -60,7 +60,7 @@ Wèngchéng is a single-process full-stack demo with four layers:
 | 2:25 to 2:50 | Engage the portcullis | Repeat offenders receive a stylized 403 |
 | 2:50 to 3:00 | Close on metrics | Tokens saved, AI wakeups, diverted sessions, attacker time wasted |
 
-Fastest path for a judge: if the lock icon is shown, enter the demo token, then click **Take 1-min Tour** beside **Play the whole story**. The tour performs real requests and ends on the 403 gate.
+Fastest path for a judge: if the lock icon is shown, enter the demo token, then click **Take the guided tour** beside **Run the full demo**. The tour performs real requests and ends on the 403 gate.
 
 ## Proof to show
 

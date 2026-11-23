@@ -471,12 +471,12 @@ async function checkControlPlane() {
 async function checkBrowserJourney() {
   await launchBrowser();
   await cdp.send('Page.reload', { ignoreCache: true });
-  await waitForBodyText('Take 1-min Tour');
-  await waitForBodyText('Play the whole story');
+  await waitForBodyText('Take the guided tour');
+  await waitForBodyText('Run the full demo');
   await waitFor('controls enabled', async () => cdp.evaluate(
     `(() => {
       const button = [...document.querySelectorAll('button')]
-        .find((item) => item.textContent && item.textContent.includes('Take 1-min Tour'));
+        .find((item) => item.textContent && item.textContent.includes('Take the guided tour'));
       return Boolean(button && !button.disabled);
     })()`,
   ), 15000, 200);
@@ -495,16 +495,16 @@ async function checkBrowserJourney() {
     const search = await cdp.evaluate('window.location.search');
     return stored === TEST_TOKEN && search === '';
   }, 15000, 200);
-  await waitForBodyText('Take 1-min Tour');
+  await waitForBodyText('Take the guided tour');
   await waitFor('unlocked controls enabled', async () => cdp.evaluate(
     `(() => {
       const button = [...document.querySelectorAll('button')]
-        .find((item) => item.textContent && item.textContent.includes('Take 1-min Tour'));
+        .find((item) => item.textContent && item.textContent.includes('Take the guided tour'));
       return Boolean(button && !button.disabled);
     })()`,
   ), 15000, 200);
 
-  await clickButton('Take 1-min Tour');
+  await clickButton('Take the guided tour');
   await waitFor('tour dialog', async () => cdp.evaluate(
     'Boolean(document.querySelector(\'[role="dialog"][aria-label="Product tour"]\'))',
   ));
@@ -522,8 +522,8 @@ async function checkBrowserJourney() {
     '!document.querySelector(\'[role="dialog"][aria-label="Product tour"]\')',
   ), 15000, 200);
 
-  await clickButton('Play the whole story');
-  // "Play the whole story" resets telemetry first, then replays all five scenarios
+  await clickButton('Run the full demo');
+  // "Run the full demo" resets telemetry first, then replays all five scenarios
   // (2 + 2 + 3 + 1 + 2 = 10 requests) and finally reopens the 403 gate.
   await waitFor('full story requests', async () => {
     const state = await snapshot();
@@ -532,7 +532,7 @@ async function checkBrowserJourney() {
       && !state.portcullis.engaged
       && prefixes.every((prefix) => state.sessions.some((session) => session.id.startsWith(prefix)));
   }, 60000, 500);
-  await waitForBodyText('Play the whole story', 20000);
+  await waitForBodyText('Run the full demo', 20000);
 
   const errors = browserErrors();
   assert.equal(errors.exceptions.length, 0, `page exceptions: ${errors.exceptions.length}`);

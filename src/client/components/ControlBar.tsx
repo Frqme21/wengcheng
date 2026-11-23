@@ -104,13 +104,13 @@ export default function ControlBar({
           <Magnetic>
             <button className="btn btn-primary" onClick={onPlayDemo} disabled={disabled}>
               <PlayIcon />
-              {demoStatus ?? 'Play the whole story'}
+              {demoStatus ?? 'Run the full demo'}
             </button>
           </Magnetic>
           <Magnetic>
             <button className="btn btn-quiet" onClick={onTakeTour} disabled={disabled}>
               <TourIcon />
-              Take 1-min Tour
+              Take the guided tour
             </button>
           </Magnetic>
           <button className="btn btn-quiet" onClick={onReset} disabled={disabled}>

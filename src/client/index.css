@@ -345,7 +345,7 @@ h1, h2, h3 {
 }
 
 .brand-seal.is-busy { animation: seal-breathe 1600ms var(--ease) infinite alternate; }
-.brand-seal.is-traveling { animation: seal-travel 620ms var(--ease) both; }
+.brand-seal.is-traveling { animation: seal-travel 820ms var(--ease) both; }
 .brand-seal.is-stamping { animation: seal-stamp 560ms var(--ease) both; }
 
 .brand-name {
@@ -373,8 +373,8 @@ h1, h2, h3 {
   z-index: 80;
   pointer-events: none;
   background: var(--teal);
-  transform-origin: var(--wipe-x, 50%) var(--wipe-y, 50%);
-  animation: full-wipe 620ms var(--ease) both;
+  will-change: transform, opacity;
+  animation: full-wipe 820ms var(--ease) both;
 }
 
 @keyframes seal-arrive {
@@ -405,9 +405,11 @@ h1, h2, h3 {
 }
 
 @keyframes full-wipe {
-  0% { opacity: 1; transform: scaleX(1); transform-origin: var(--wipe-x, 50%) center; }
-  48% { opacity: 1; transform: scaleX(1); transform-origin: right center; }
-  100% { opacity: 0; transform: scaleX(0); transform-origin: right center; }
+  0% { opacity: 0; transform: translate3d(var(--wipe-from, -100%), 0, 0); }
+  12% { opacity: 1; }
+  50% { opacity: 1; transform: translate3d(0, 0, 0); }
+  88% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--wipe-to, 100%), 0, 0); }
 }
 
 @media (prefers-reduced-motion: no-preference) {

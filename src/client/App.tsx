@@ -200,13 +200,17 @@ export default function App() {
 
   const triggerWipe = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     if (wipeTimerRef.current !== null) window.clearTimeout(wipeTimerRef.current);
-    const x = (event.clientX / Math.max(window.innerWidth, 1)) * 100;
-    const y = (event.clientY / Math.max(window.innerHeight, 1)) * 100;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const synthetic = event.detail === 0;
+    const pointX = synthetic ? rect.left + rect.width / 2 : event.clientX;
+    const pointY = synthetic ? rect.top + rect.height / 2 : event.clientY;
+    const x = (pointX / Math.max(window.innerWidth, 1)) * 100;
+    const y = (pointY / Math.max(window.innerHeight, 1)) * 100;
     setWipe({ id: Date.now(), x, y });
     wipeTimerRef.current = window.setTimeout(() => {
       setWipe(null);
       wipeTimerRef.current = null;
-    }, 640);
+    }, 860);
   }, []);
 
   const onPlayDemo = useCallback(async (event?: MouseEvent<HTMLButtonElement>) => {
@@ -487,6 +491,8 @@ export default function App() {
           className="wipe-overlay"
           aria-hidden="true"
           style={{
+            '--wipe-from': wipe.x < 50 ? '-100%' : '100%',
+            '--wipe-to': wipe.x < 50 ? '100%' : '-100%',
             '--wipe-x': `${wipe.x}%`,
             '--wipe-y': `${wipe.y}%`,
           } as CSSProperties}
