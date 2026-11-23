@@ -17,6 +17,9 @@
   --rust: #9C3B32;
   --sage: #4F7A63;
   --plum: #6F5A86;
+  --tour-accent: oklch(0.48 0.075 195);
+  --tour-accent-soft: oklch(0.48 0.075 195 / 0.12);
+  --tour-ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * { box-sizing: border-box; }
@@ -97,13 +100,86 @@ g[role="button"]:focus-visible circle { stroke: var(--teal); stroke-width: 2.5; 
 .flow-line { stroke-dasharray: 6 7; }
 
 .tour-ring {
-  border-color: var(--teal);
-  background: rgba(47, 111, 115, 0.05);
-  box-shadow: 0 0 0 4px rgba(47, 111, 115, 0.12);
+  border-color: var(--tour-accent);
+  background: var(--tour-accent-soft);
+  box-shadow: 0 0 0 4px oklch(0.48 0.075 195 / 0.16);
+  transition: transform 480ms var(--tour-ease), width 480ms var(--tour-ease), height 480ms var(--tour-ease);
+  will-change: transform;
+}
+
+.tour-card {
+  transform-origin: bottom center;
+  animation: tour-card-in 420ms var(--tour-ease) both;
+  box-shadow: 0 24px 64px -32px oklch(0.25 0.018 210 / 0.45);
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.tour-rise {
+  animation: tour-rise 460ms var(--tour-ease) both;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.tour-seal {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--tour-accent-soft);
+  background: var(--tour-accent-soft);
+  color: var(--tour-accent);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  animation: tour-seal-in 520ms var(--tour-ease) both;
+  backface-visibility: hidden;
+}
+
+.tour-dot {
+  display: block;
+  width: 24px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--line);
+  transform-origin: left center;
+  transition: background-color 280ms var(--tour-ease), transform 280ms var(--tour-ease);
+}
+
+.tour-dot.is-active {
+  background: var(--tour-accent);
+  transform: scaleX(1.15);
+}
+
+.tour-quiet {
+  transition: color 180ms var(--tour-ease), transform 180ms var(--tour-ease);
+}
+
+.tour-quiet:active {
+  transform: scale(0.98);
+}
+
+@keyframes tour-card-in {
+  from { opacity: 0; transform: translate3d(0, 16px, 0) scale(0.98); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes tour-rise {
+  from { opacity: 0; transform: translate3d(0, 8px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes tour-seal-in {
+  from { opacity: 0; transform: translate3d(0, -8px, 0) scale(0.92); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 
 .term-line { white-space: pre-wrap; word-break: break-word; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .tour-card, .tour-rise, .tour-seal { animation: none !important; transform: none !important; }
+  .tour-ring, .tour-dot, .tour-quiet { transition: none !important; }
 }

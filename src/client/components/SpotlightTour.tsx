@@ -24,10 +24,10 @@ interface Box {
   right: number;
 }
 
-const PAD = 10;
-const GAP = 16;
+const PAD = 16;
+const GAP = 24;
 const MARGIN = 16;
-const DIM = 'rgba(32, 42, 46, 0.62)';
+const DIM = 'oklch(0.25 0.018 210 / 0.62)';
 
 function sameBox(a: Box | null, b: Box): boolean {
   return (
@@ -194,52 +194,66 @@ export default function SpotlightTour({ steps, currentStep, onNext, onBack, onSk
 
       {box && (
         <div
-          className="tour-ring pointer-events-none absolute z-[1] rounded-2xl border-2 border-teal"
+          className="tour-ring pointer-events-none absolute left-0 top-0 z-[1] rounded-2xl border-2"
           style={{
-            top: box.top,
-            left: box.left,
+            transform: `translate3d(${box.left}px, ${box.top}px, 0)`,
             width: box.width,
             height: box.height,
-            background: 'rgba(47, 111, 115, 0.05)',
           }}
           aria-hidden="true"
         />
       )}
 
       <div
+        key={step.id}
         ref={tooltipRef}
-        className="surface absolute z-[2] w-[min(360px,calc(100vw-32px))] p-5"
+        className="tour-card surface absolute z-[2] flex w-[min(520px,calc(100vw-32px))] flex-col gap-6 p-6 sm:p-8"
         style={{ top: tooltipPos.top, left: tooltipPos.left }}
         aria-live="polite"
       >
-        <div className="flex items-center justify-between gap-3">
-          <span className="section-label">Step {currentStep + 1} of {steps.length}</span>
-          <div className="flex gap-1" aria-hidden="true">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="tour-seal" aria-hidden="true">瓮</span>
+            <span className="section-label">Step {currentStep + 1} of {steps.length}</span>
+          </div>
+          <div className="flex items-center gap-2" aria-hidden="true">
             {steps.map((item, index) => (
               <span
                 key={item.id}
-                className={`h-1 w-4 rounded-full ${index <= currentStep ? 'bg-teal' : 'bg-line'}`}
+                className={`tour-dot ${index <= currentStep ? 'is-active' : ''}`}
               />
             ))}
           </div>
         </div>
 
-        <h3 className="mt-3 text-base font-semibold text-ink">{step.title}</h3>
-        <p className="mt-2 text-sm leading-relaxed text-muted">{step.body}</p>
+        <div className="flex flex-col gap-4">
+          <h3
+            className="tour-rise font-semibold tracking-[-0.02em] text-ink"
+            style={{ fontSize: 'clamp(1.25rem, 1.6vw, 1.5rem)', animationDelay: '80ms' }}
+          >
+            {step.title}
+          </h3>
+          <p
+            className="tour-rise max-w-[65ch] leading-7 text-muted"
+            style={{ fontSize: 'clamp(0.95rem, 1.05vw, 1.0625rem)', animationDelay: '140ms' }}
+          >
+            {step.body}
+          </p>
+        </div>
 
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
-          <button onClick={onSkip} className="focus-ring text-xs font-medium text-faint hover:text-ink">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <button onClick={onSkip} className="focus-ring tour-quiet min-h-[44px] px-2 text-sm font-medium text-faint">
             Skip tour
           </button>
           <div className="flex gap-2">
             <button
               onClick={onBack}
               disabled={currentStep === 0}
-              className="btn btn-quiet min-h-[38px] px-3 py-1.5 text-xs"
+              className="btn btn-quiet min-h-[44px] px-5 py-2 text-sm"
             >
               Back
             </button>
-            <button ref={nextRef} onClick={onNext} className="btn btn-primary min-h-[38px] px-4 py-1.5 text-xs">
+            <button ref={nextRef} onClick={onNext} className="btn btn-primary min-h-[44px] px-5 py-2 text-sm">
               Next
             </button>
           </div>
