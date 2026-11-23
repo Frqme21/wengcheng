@@ -47,13 +47,15 @@ class LlmClient {
     const nvidiaKey = process.env.NVIDIA_API_KEY?.trim();
     const openrouterKey = process.env.OPENROUTER_API_KEY?.trim();
 
+    const timeoutMs = Number(process.env.LLM_TIMEOUT_MS?.trim() || (nvidiaKey ? '45000' : '14000'));
+
     if (nvidiaKey) {
       this.mode = 'nvidia';
       this.model = process.env.NVIDIA_MODEL?.trim() || 'meta/llama-3.1-8b-instruct';
       this.client = new OpenAI({
         apiKey: nvidiaKey,
         baseURL: NVIDIA_BASE,
-        timeout: 14_000,
+        timeout: Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 45_000,
         maxRetries: 0,
       });
     } else if (openrouterKey) {
@@ -62,7 +64,7 @@ class LlmClient {
       this.client = new OpenAI({
         apiKey: openrouterKey,
         baseURL: OPENROUTER_BASE,
-        timeout: 14_000,
+        timeout: Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 14_000,
         maxRetries: 0,
         defaultHeaders: {
           'HTTP-Referer': 'https://wengcheng.local',
@@ -146,6 +148,17 @@ Return ONLY a minified JSON object (no markdown, no prose):
     if (!this.client) return null;
     state.beginLlm();
     try {
+      const extra: Record<string, unknown> = {};
+      if (this.mode === 'nvidia') {
+        // Nemotron models on NVIDIA NIM support thinking control; keep configurable.
+        const thinking = process.env.NVIDIA_ENABLE_THINKING?.trim().toLowerCase();
+        if (thinking === 'true' || thinking === '1') {
+          extra.chat_template_kwargs = { enable_thinking: true };
+        } else if (thinking === 'false' || thinking === '0') {
+          extra.chat_template_kwargs = { enable_thinking: false };
+        }
+      }
+      const effectiveMaxTokens = this.mode === 'nvidia' ? Math.max(maxTokens, 1400) : maxTokens;
       const response = await this.client.chat.completions.create({
         model: this.model,
         messages: [
@@ -153,15 +166,23 @@ Return ONLY a minified JSON object (no markdown, no prose):
           { role: 'user', content: prompt },
         ],
         temperature,
-        max_tokens: maxTokens,
-      });
+        max_tokens: effectiveMaxTokens,
+        ...extra,
+      } as any);
       const usage = response.usage;
       if (usage) {
         state.countTokensSpent((usage.prompt_tokens ?? 0) + (usage.completion_tokens ?? 0));
       }
-      return response.choices[0]?.message?.content ?? null;
+      const content = response.choices[0]?.message?.content ?? null;
+      if (!content) {
+        const reason = response.choices[0]?.finish_reason ?? 'unknown';
+        console.warn('[llm] empty content from model, finish_reason=', reason);
+      }
+      return content;
     } catch (error) {
-      console.warn('[llm] request failed, falling back to procedural generation:', (error as Error).message);
+      const err = error as Error & { status?: number; code?: string };
+      const detail = [err.message, err.status ? `status=${err.status}` : '', err.code ? `code=${err.code}` : ''].filter(Boolean).join(' ');
+      console.warn('[llm] request failed, falling back to procedural generation:', detail);
       return null;
     } finally {
       state.endLlm();

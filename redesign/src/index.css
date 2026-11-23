@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+@theme {
+  /* 60 / 30 / 10: midnight base, slate surfaces, vermilion accent */
+  --color-bg: oklch(0.13 0.012 235);
+  --color-deep: oklch(0.1 0.012 235);
+  --color-surface: oklch(0.19 0.014 235);
+  --color-surface-2: oklch(0.25 0.016 235);
+  --color-line: oklch(0.33 0.016 235);
+  --color-ink: oklch(0.96 0.01 90);
+  --color-muted: oklch(0.76 0.015 235);
+  --color-accent: oklch(0.72 0.17 45);
+  --color-accent-ink: oklch(0.18 0.03 45);
+  --color-pass: oklch(0.72 0.13 235);
+  --color-court: oklch(0.2 0.04 45);
+  --color-court-2: oklch(0.26 0.05 45);
+
+  --font-display: "Fraunces", "Noto Serif SC", serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --ease-lsp: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  --logo-size: clamp(128px, 24vmin, 208px);
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-bg);
+}
+
+body {
+  margin: 0;
+  overflow-x: clip;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "tnum" 1, "cv11" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 4px;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
+
+/* Elements that undergo transforms: subpixel and WebKit stability */
+.kinetic {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  will-change: transform;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Caption stack used by the pinned flow story, only when motion is allowed */
+@media (prefers-reduced-motion: no-preference) {
+  .stack-motion {
+    display: grid;
+  }
+  .stack-motion > * {
+    grid-area: 1 / 1;
+  }
+}
+
+summary {
+  list-style: none;
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] > summary .chev {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
