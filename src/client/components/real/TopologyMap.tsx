@@ -1,5 +1,5 @@
-import type { AttackCategory, SessionRecord, TelemetrySnapshot } from '../../shared/types';
-import { PALETTE } from '../theme';
+import type { AttackCategory, SessionRecord, TelemetrySnapshot } from '../../../shared/types';
+import { PALETTE } from '../../theme';
 
 interface Props {
   snapshot: TelemetrySnapshot | null;
@@ -75,13 +75,13 @@ export default function TopologyMap({ snapshot, selectedId, onSelect }: Props) {
 
   return (
     <div data-tour-id="traffic-map" className="surface animate-rise overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line-soft px-6 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line px-6 py-4">
         <div className="flex items-center gap-2">
           <span className={`h-2 w-2 rounded-full ${sessions.length > 0 ? 'bg-rust' : 'bg-sage'}`} />
           <span className="text-sm font-semibold text-ink">One request, two possible paths</span>
         </div>
         <div className="flex flex-wrap gap-2">
-          <span className="tag border-line text-faint num">{snapshot?.uptimeSeconds ?? 0}s uptime</span>
+          <span className="tag border-line text-muted num">{snapshot?.uptimeSeconds ?? 0}s uptime</span>
           <span className={`tag ${engaged ? 'border-rust/45 bg-rust/10 text-rust' : 'border-sage/35 bg-sage/[0.06] text-sage'}`}>
             {engaged ? '403 gate on' : '403 gate off'}
           </span>

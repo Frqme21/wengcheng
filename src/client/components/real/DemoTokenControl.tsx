@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { clearDemoToken, readDemoToken, saveDemoToken } from '../demoToken';
+import { clearDemoToken, readDemoToken, saveDemoToken } from '../../demoToken';
 
 interface Props {
   required: boolean;
@@ -76,7 +76,7 @@ export default function DemoTokenControl({ required, onMessage }: Props) {
       {open && (
         <div className="popover-enter surface-raised absolute right-0 top-full z-50 mt-2 w-72 p-4" role="group" aria-label="Demo token entry">
           <div className="text-xs font-semibold text-ink">Demo access token</div>
-          <p className="mt-2 text-[11px] leading-relaxed text-faint">
+          <p className="mt-2 text-[11px] leading-relaxed text-muted">
             Saved for this tab only. Needed for simulator actions, the 403 gate, reports, and reset.
           </p>
           <input
@@ -84,7 +84,7 @@ export default function DemoTokenControl({ required, onMessage }: Props) {
             value={value}
             onChange={(event) => setValue(event.target.value)}
             onKeyDown={(event) => { if (event.key === 'Enter') handleSave(); }}
-            className="focus-ring mt-2 min-h-11 w-full rounded-lg border border-line bg-paper px-4 py-2 text-xs text-ink"
+            className="focus-ring mt-2 min-h-11 w-full rounded-lg border border-line bg-deep px-4 py-2 text-xs text-ink"
             placeholder="Paste demo token"
             autoComplete="off"
             spellCheck={false}

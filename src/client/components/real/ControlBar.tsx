@@ -1,7 +1,7 @@
 import type { MouseEvent } from 'react';
-import type { SimulatorAction } from '../../shared/types';
+import type { SimulatorAction } from '../../../shared/types';
 import Magnetic from './Magnetic';
-import { PALETTE } from '../theme';
+import { PALETTE } from '../../theme';
 
 interface Props {
   onSimulate: (action: SimulatorAction) => void;
@@ -132,7 +132,7 @@ export default function ControlBar({
               className={`focus-ring flex min-h-11 items-start gap-4 rounded-lg border border-line px-4 py-4 text-left transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 ${tone.bg} ${tone.border}`}
             >
               <span
-                className="num flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-line bg-paper text-xs"
+                className="num flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-line bg-deep text-xs"
                 style={{ color: tone.dot }}
               >
                 {item.step}
@@ -152,10 +152,10 @@ export default function ControlBar({
           className={`focus-ring flex min-h-11 items-start gap-4 rounded-lg border px-4 py-4 text-left transition-[border-color,background-color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 ${
             engaged
               ? 'border-rust/50 bg-rust/[0.07]'
-              : 'border-line bg-card hover:border-rust/40'
+              : 'border-line bg-surface hover:border-rust/40'
           }`}
         >
-          <span className={`num flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-line bg-paper text-xs ${engaged ? 'text-rust' : 'text-faint'}`}>
+          <span className={`num flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-line bg-deep text-xs ${engaged ? 'text-rust' : 'text-muted'}`}>
             {engaged ? 'ON' : 'OFF'}
           </span>
           <span className="flex min-w-0 flex-col gap-2">

@@ -1,4 +1,4 @@
-import type { AttackCategory, RequestEvent, TelemetrySnapshot } from '../../shared/types';
+import type { AttackCategory, RequestEvent, TelemetrySnapshot } from '../../../shared/types';
 
 const CATEGORY_LABELS: Record<AttackCategory, string> = {
   none: 'normal visit',
@@ -53,17 +53,17 @@ export function EventStream({
 }) {
   return (
     <section className="surface animate-rise flex min-h-[320px] flex-col overflow-hidden" aria-labelledby="requests-title">
-      <div className="flex items-center justify-between gap-4 border-b border-line-soft px-6 py-4">
+      <div className="flex items-center justify-between gap-4 border-b border-line px-6 py-4">
         <div>
           <div className="section-label">Most recent first</div>
           <h3 id="requests-title" className="text-sm font-semibold text-ink">Recent requests</h3>
         </div>
-        <span className="tag border-line text-faint num">{events.length} shown</span>
+        <span className="tag border-line text-muted num">{events.length} shown</span>
       </div>
 
       <div className="stagger max-h-[380px] flex-1 overflow-y-auto">
         {events.length === 0 && (
-          <div className="px-6 py-12 text-center text-sm leading-relaxed text-faint">
+          <div className="px-6 py-12 text-center text-sm leading-relaxed text-muted">
             No requests yet. Use a button above to send one.
           </div>
         )}
@@ -73,14 +73,14 @@ export function EventStream({
             <button
               key={event.id}
               onClick={() => onSelect(event.sessionId)}
-              className={`focus-ring block min-h-11 w-full border-b border-line-soft px-6 py-4 text-left transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-raised/70 ${selectedId === event.sessionId ? 'bg-teal/[0.05]' : ''}`}
+              className={`focus-ring block min-h-11 w-full border-b border-line px-6 py-4 text-left transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-surface-2/70 ${selectedId === event.sessionId ? 'bg-teal/[0.05]' : ''}`}
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-sm font-medium text-ink">{summarize(event)}</span>
                 <span className={`tag shrink-0 text-[11px] ${tag.className}`}>{tag.label}</span>
               </div>
               <div className="num mt-2 truncate text-[11px] text-muted">{event.method} {plainText(event.path)}</div>
-              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-faint">
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted">
                 <span>{CATEGORY_LABELS[event.category]}</span>
                 <span className="num">{event.latencyMs} ms · {event.sessionId.slice(-6)}</span>
               </div>
@@ -101,7 +101,7 @@ export function CachePanel({ snapshot }: { snapshot: TelemetrySnapshot | null })
   const entries = snapshot?.cache ?? [];
   return (
     <section className="surface animate-rise flex min-h-[320px] flex-col overflow-hidden" aria-labelledby="cache-title">
-      <div className="flex items-center justify-between gap-4 border-b border-line-soft px-6 py-4">
+      <div className="flex items-center justify-between gap-4 border-b border-line px-6 py-4">
         <div>
           <div className="section-label">Fast answers, no model call</div>
           <h3 id="cache-title" className="text-sm font-semibold text-ink">Saved fake answers</h3>
@@ -109,29 +109,29 @@ export function CachePanel({ snapshot }: { snapshot: TelemetrySnapshot | null })
         <span className="tag border-sage/35 bg-sage/[0.06] text-sage num">{entries.length} saved</span>
       </div>
 
-      <p className="border-b border-line-soft px-6 py-4 text-xs leading-relaxed text-faint">
+      <p className="border-b border-line px-6 py-4 text-xs leading-relaxed text-muted">
         The first time a trick appears we build a decoy. After that, the same answer is reused instantly.
       </p>
 
       <div className="stagger max-h-[300px] flex-1 overflow-y-auto">
         {entries.length === 0 && (
-          <div className="px-6 py-10 text-center text-sm leading-relaxed text-faint">
+          <div className="px-6 py-10 text-center text-sm leading-relaxed text-muted">
             No fake answers saved yet. Send a suspicious request to create one.
           </div>
         )}
         {entries.map((entry) => (
-          <div key={entry.key} className="border-b border-line-soft px-6 py-4">
+          <div key={entry.key} className="border-b border-line px-6 py-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="num truncate text-xs text-ink">{plainText(entry.pathPattern)}</span>
               <span className={`tag shrink-0 text-[11px] ${
                 entry.source === 'ai'
                   ? 'border-plum/40 bg-plum/[0.07] text-plum'
-                  : 'border-line text-faint'
+                  : 'border-line text-muted'
               }`}>
                 {entry.source === 'ai' ? 'Written by AI once' : 'Built in'}
               </span>
             </div>
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-faint">
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted">
               <span>Fake answer for {CATEGORY_LABELS[entry.category]}</span>
               <span className="num">Used {entry.hits} {entry.hits === 1 ? 'time' : 'times'}</span>
             </div>
@@ -157,18 +157,18 @@ export function LlmPanel({ snapshot }: { snapshot: TelemetrySnapshot | null }) {
           <div className="section-label">Only when needed</div>
           <h3 id="ai-title" className="text-sm font-semibold text-ink">AI use</h3>
         </div>
-        <span className={`tag ${configured ? 'border-plum/40 bg-plum/[0.07] text-plum' : 'border-line text-faint'}`}>
+        <span className={`tag ${configured ? 'border-plum/40 bg-plum/[0.07] text-plum' : 'border-line text-muted'}`}>
           {configured ? 'AI ready' : 'Saved decoys only'}
         </span>
       </div>
 
       <div className="stagger mt-6 grid grid-cols-2 gap-4">
         <div className="surface-raised p-4">
-          <div className="text-[11px] text-faint">Times the AI was used</div>
+          <div className="text-[11px] text-muted">Times the AI was used</div>
           <div className="num mt-2 text-xl font-semibold text-plum">{totals?.aiWakeups ?? 0}</div>
         </div>
         <div className="surface-raised p-4">
-          <div className="text-[11px] text-faint">Tokens spent</div>
+          <div className="text-[11px] text-muted">Tokens spent</div>
           <div className="num mt-2 text-xl font-semibold text-clay">{spent}</div>
         </div>
       </div>
@@ -184,10 +184,10 @@ export function LlmPanel({ snapshot }: { snapshot: TelemetrySnapshot | null }) {
             style={{ transform: `scaleX(${withoutAi / 100})` }}
           />
         </div>
-        <div className="num mt-2 text-[11px] text-faint">{saved.toLocaleString()} tokens saved</div>
+        <div className="num mt-2 text-[11px] text-muted">{saved.toLocaleString()} tokens saved</div>
       </div>
 
-      <p className="mt-6 border-t border-line-soft pt-4 text-xs leading-relaxed text-faint">
+      <p className="mt-6 border-t border-line pt-4 text-xs leading-relaxed text-muted">
         {configured
           ? `Using ${llm?.model ?? 'the configured model'}. Normal traffic and known tricks never wake the model. A new kind of request wakes it once, then the answer is saved.`
           : 'No model is configured. Built-in fake answers handle every request, and new requests get a procedural decoy.'}

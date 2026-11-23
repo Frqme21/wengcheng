@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import type { SessionRecord, ThreatAnalysis } from '../../shared/types';
-import { PALETTE } from '../theme';
+import type { SessionRecord, ThreatAnalysis } from '../../../shared/types';
+import { PALETTE } from '../../theme';
 
 interface Props {
   session: SessionRecord | null;
@@ -58,7 +58,7 @@ function Gauge({ score, hostile }: { score: number; hostile: boolean }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="num text-lg font-semibold" style={{ color: tone.color }}>{score}</span>
-        <span className="text-[9px] text-faint">risk score</span>
+        <span className="text-[9px] text-muted">risk score</span>
       </div>
     </div>
   );
@@ -127,17 +127,17 @@ export default function SessionDrawer({
       <aside
         ref={asideRef}
         data-tour-id="session-drawer"
-        className={`drawer-panel flex h-full w-full max-w-[544px] flex-col border-l border-line bg-card ${closing ? 'is-closing' : ''}`}
+        className={`drawer-panel flex h-full w-full max-w-[544px] flex-col border-l border-line bg-surface ${closing ? 'is-closing' : ''}`}
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="drawer-title"
       >
-        <header className="flex items-start justify-between gap-4 border-b border-line-soft px-6 py-6">
+        <header className="flex items-start justify-between gap-4 border-b border-line px-6 py-6">
           <div className="flex flex-col gap-2">
             <div className="section-label">Session details</div>
             <h2 id="drawer-title" className="num text-lg font-semibold text-ink">{session.id}</h2>
-            <p className="text-xs text-faint">Started {new Date(session.startedAt).toLocaleTimeString()}</p>
+            <p className="text-xs text-muted">Started {new Date(session.startedAt).toLocaleTimeString()}</p>
           </div>
           <button
             ref={closeRef}
@@ -151,7 +151,7 @@ export default function SessionDrawer({
           </button>
         </header>
 
-        <div className="drawer-stagger flex-1 space-y-6 overflow-y-auto px-6 py-6">
+        <div id="session-report-panel" className="drawer-stagger flex-1 space-y-6 overflow-y-auto px-6 py-6">
           <div className="surface-raised p-6">
             <div className="flex items-center gap-6">
               <Gauge score={session.riskScore} hostile={hostile} />
@@ -171,7 +171,7 @@ export default function SessionDrawer({
                     ? `This session made ${session.requestCount} ${session.requestCount === 1 ? 'request' : 'requests'}. ${CATEGORY_SUMMARY[session.category] ?? 'It looked suspicious.'}`
                     : 'This session made normal requests and reached the real app.'}
                 </p>
-                <p className="text-xs leading-relaxed text-faint">
+                <p className="text-xs leading-relaxed text-muted">
                   {hostile
                     ? `We kept it busy for ${seconds.toFixed(1)} seconds and showed it ${session.decoysTouched.length} fake ${session.decoysTouched.length === 1 ? 'answer' : 'answers'}.`
                     : 'No fake answers were shown and no AI was used.'}
@@ -191,7 +191,7 @@ export default function SessionDrawer({
 
           <Section title="Fake answers they touched">
             <div className="flex flex-wrap gap-2">
-              {session.decoysTouched.length === 0 && <span className="text-xs text-faint">None. This visitor stayed on the real path.</span>}
+              {session.decoysTouched.length === 0 && <span className="text-xs text-muted">None. This visitor stayed on the real path.</span>}
               {session.decoysTouched.map((id) => (
                 <span key={id} className="tag border-teal/35 bg-teal/[0.06] text-teal">
                   {DECOY_LABELS[id] ?? id}
@@ -202,14 +202,14 @@ export default function SessionDrawer({
 
           <Section title="What they tried">
             {session.payloads.length === 0 ? (
-              <div className="text-xs text-faint">No attack payloads were captured.</div>
+              <div className="text-xs text-muted">No attack payloads were captured.</div>
             ) : (
               <div className="space-y-2">
                 {session.payloads.map((payload) => (
                   <div key={payload.id} className="surface-raised p-4">
                     <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
                       <span className="font-medium text-rust">{plainText(payload.signature)}</span>
-                      <span className="text-faint">{CATEGORY_SUMMARY[payload.category] ?? payload.category}</span>
+                      <span className="text-muted">{CATEGORY_SUMMARY[payload.category] ?? payload.category}</span>
                     </div>
                     <div className="num mt-2 break-all text-[11px] leading-relaxed text-muted">{plainText(payload.value)}</div>
                   </div>
@@ -220,12 +220,12 @@ export default function SessionDrawer({
 
           <Section title="Request order">
             {session.pathHistory.length === 0 ? (
-              <div className="text-xs text-faint">No requests were recorded.</div>
+              <div className="text-xs text-muted">No requests were recorded.</div>
             ) : (
               <ol className="space-y-2">
                 {session.pathHistory.slice(0, 12).map((path, index) => (
                   <li key={`${path}-${index}`} className="num flex gap-4 text-[11px] text-muted">
-                    <span className="shrink-0 text-faint">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="shrink-0 text-muted">{String(index + 1).padStart(2, '0')}</span>
                     <span className="break-all">{plainText(path)}</span>
                   </li>
                 ))}
@@ -236,7 +236,7 @@ export default function SessionDrawer({
           {analysis && (
             <Section title="Analyst summary">
               <div className="space-y-4 rounded-xl border border-plum/25 bg-plum/[0.035] p-4">
-                <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-faint">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted">
                   <span className="text-plum">{plainText(analysis.provider)}</span>
                   <span className="num">{analysis.confidence}% confidence</span>
                 </div>
@@ -251,7 +251,7 @@ export default function SessionDrawer({
                 {analysis.mitre.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {analysis.mitre.map((item) => (
-                      <span key={item} className="tag border-line text-faint">{plainText(item)}</span>
+                      <span key={item} className="tag border-line text-muted">{plainText(item)}</span>
                     ))}
                   </div>
                 )}
@@ -263,7 +263,7 @@ export default function SessionDrawer({
           )}
         </div>
 
-        <footer className="space-y-2 border-t border-line-soft bg-paper/60 px-6 py-4">
+        <footer className="space-y-2 border-t border-line bg-deep/60 px-6 py-4">
           <div className="grid gap-2 sm:grid-cols-2">
             <button
               disabled={analyzing}
@@ -288,7 +288,7 @@ export default function SessionDrawer({
               Download raw data
             </a>
           </div>
-          <p className="text-center text-[11px] text-faint">
+          <p className="text-center text-[11px] text-muted">
             {aiReady
               ? 'The short report uses saved rules. The deeper report calls the model and costs tokens.'
               : 'Both reports are generated locally right now. No model key is needed.'}
@@ -311,7 +311,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Stat({ label, value, accent = PALETTE.ink }: { label: string; value: string; accent?: string }) {
   return (
     <div className="surface-raised p-4">
-      <div className="text-[11px] leading-snug text-faint">{label}</div>
+      <div className="text-[11px] leading-snug text-muted">{label}</div>
       <div className="num mt-2 text-lg font-semibold" style={{ color: accent }}>{value}</div>
     </div>
   );

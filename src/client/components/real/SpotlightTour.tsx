@@ -260,7 +260,7 @@ export default function SpotlightTour({ steps, currentStep, onNext, onBack, onSk
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <button onClick={onSkip} className="focus-ring tour-quiet min-h-11 px-2 text-sm font-medium text-faint">
+            <button onClick={onSkip} className="focus-ring tour-quiet min-h-11 px-2 text-sm font-medium text-muted">
               Skip tour
             </button>
             <div className="flex gap-2">

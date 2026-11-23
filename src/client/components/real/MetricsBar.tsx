@@ -1,5 +1,5 @@
-import type { TelemetrySnapshot } from '../../shared/types';
-import { PALETTE } from '../theme';
+import type { TelemetrySnapshot } from '../../../shared/types';
+import { PALETTE } from '../../theme';
 
 interface Props {
   snapshot: TelemetrySnapshot | null;
@@ -63,14 +63,14 @@ function Metric({
               className="focus-ring flex h-11 w-11 shrink-0 cursor-help items-center justify-center"
               aria-label={help}
             >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-line text-[10px] text-faint">?</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-line text-[10px] text-muted">?</span>
             </span>
           </div>
           <div className="mt-4 flex items-baseline gap-2">
             <span className="num text-3xl font-semibold" style={{ color }}>{value}</span>
-            {unit && <span className="text-sm text-faint">{unit}</span>}
+            {unit && <span className="text-sm text-muted">{unit}</span>}
           </div>
-          <p className="mt-2 max-w-[32ch] text-xs leading-relaxed text-faint">{explanation}</p>
+          <p className="mt-2 max-w-[32ch] text-xs leading-relaxed text-muted">{explanation}</p>
         </div>
         <div className="shrink-0 pt-2"><Bar values={bars} color={color} /></div>
       </div>

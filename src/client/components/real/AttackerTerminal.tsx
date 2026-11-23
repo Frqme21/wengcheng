@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { SimulatorResponse } from '../../shared/types';
-import type { SimulatorStatus } from '../useGrid';
+import type { SimulatorResponse } from '../../../shared/types';
+import type { SimulatorStatus } from '../../useGrid';
 
 interface Props {
   responses: SimulatorResponse[];
@@ -40,7 +40,7 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
 
   return (
     <section className="surface animate-rise flex min-h-[420px] flex-col overflow-hidden" aria-labelledby="attacker-title">
-      <div className="border-b border-line-soft bg-rust/[0.035] px-6 py-4">
+      <div className="border-b border-line bg-rust/[0.035] px-6 py-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-rust" />
@@ -49,13 +49,13 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
               <h3 id="attacker-title" className="text-sm font-semibold text-ink">What the attacker sees</h3>
             </div>
           </div>
-          <div className="flex gap-2 rounded-xl border border-line bg-paper p-2">
+          <div className="flex gap-2 rounded-xl border border-line bg-deep p-2">
             {(['replies', 'preview'] as const).map((item) => (
               <button
                 key={item}
                 onClick={() => setTab(item)}
                 className={`focus-ring min-h-11 rounded-lg px-4 py-2 text-xs font-medium transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                  tab === item ? 'bg-teal/10 text-teal' : 'text-faint hover:text-muted'
+                  tab === item ? 'bg-teal/10 text-teal' : 'text-muted hover:text-muted'
                 }`}
                 aria-pressed={tab === item}
               >
@@ -70,7 +70,7 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
       </div>
 
       {current && (
-        <div className="animate-fade flex flex-wrap items-center justify-between gap-2 border-b border-line-soft bg-clay/[0.045] px-6 py-4 text-xs text-clay">
+        <div className="animate-fade flex flex-wrap items-center justify-between gap-2 border-b border-line bg-clay/[0.045] px-6 py-4 text-xs text-clay">
           <span className="num truncate">Sending {current.label}: {current.path}</span>
           <span className="shrink-0">Waiting for reply</span>
         </div>
@@ -84,19 +84,19 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
             </svg>
           </div>
           <p className="text-sm font-medium text-ink">No replies captured yet</p>
-          <p className="max-w-[38ch] text-xs leading-relaxed text-faint">
+          <p className="max-w-[38ch] text-xs leading-relaxed text-muted">
             Choose a request above. The real reply will appear here, exactly as the fake city sent it.
           </p>
         </div>
       ) : tab === 'replies' ? (
-        <div className="tab-enter stagger max-h-[620px] flex-1 space-y-4 overflow-y-auto bg-paper p-4" aria-live="polite">
+        <div className="tab-enter stagger max-h-[620px] flex-1 space-y-4 overflow-y-auto bg-deep p-4" aria-live="polite">
           {responses.map((response) => {
             const tone = responseTone(response);
             return (
               <article key={response.id} className="surface-raised overflow-hidden">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line-soft px-4 py-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-4">
                   <span className={`tag text-[11px] ${tone.className}`}>{tone.label}</span>
-                  <span className="num text-[11px] text-faint">{response.latencyMs} ms</span>
+                  <span className="num text-[11px] text-muted">{response.latencyMs} ms</span>
                 </div>
                 <div className="flex flex-col gap-2 px-4 py-4">
                   <div className="num break-all text-[11px] leading-relaxed text-teal">
@@ -104,12 +104,12 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
                   </div>
                   <div className="num text-[11px] text-muted">HTTP/1.1 {response.status}</div>
                   {response.note && (
-                    <div className="text-[11px] leading-relaxed text-faint">{plainText(response.note)}</div>
+                    <div className="text-[11px] leading-relaxed text-muted">{plainText(response.note)}</div>
                   )}
                   {response.aiWakeup && (
                     <div className="text-[11px] text-plum">The AI was used once to invent this answer.</div>
                   )}
-                  <pre className="term-line num max-h-64 overflow-auto rounded-lg border border-line-soft bg-paper p-4 text-[11px] leading-relaxed text-muted">
+                  <pre className="term-line num max-h-64 overflow-auto rounded-lg border border-line bg-deep p-4 text-[11px] leading-relaxed text-muted">
                     {response.body}
                   </pre>
                   <button
@@ -124,12 +124,12 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
           })}
         </div>
       ) : (
-        <div className="tab-enter flex-1 bg-paper p-4">
+        <div className="tab-enter flex-1 bg-deep p-4">
           {!latest ? (
-            <div className="text-sm text-faint">No reply to preview yet.</div>
+            <div className="text-sm text-muted">No reply to preview yet.</div>
           ) : latest.body.trim().startsWith('<') ? (
             <div>
-              <div className="mb-2 flex items-center justify-between gap-2 text-[11px] text-faint">
+              <div className="mb-2 flex items-center justify-between gap-2 text-[11px] text-muted">
                 <span>Fake page preview</span>
                 <span className="num truncate">wengcheng.invalid{latest.path}</span>
               </div>
@@ -137,16 +137,16 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
                 title="Fake page preview"
                 sandbox=""
                 srcDoc={latest.body}
-                className="h-[440px] w-full rounded-xl border border-line bg-paper"
+                className="h-[440px] w-full rounded-xl border border-line bg-deep"
               />
             </div>
           ) : (
             <div className="surface-raised overflow-hidden">
-              <div className="flex items-center gap-2 border-b border-line-soft px-4 py-4">
+              <div className="flex items-center gap-2 border-b border-line px-4 py-4">
                 <span className="h-2 w-2 rounded-full bg-rust/70" />
                 <span className="h-2 w-2 rounded-full bg-clay/70" />
                 <span className="h-2 w-2 rounded-full bg-sage/70" />
-                <span className="num ml-3 truncate text-[11px] text-faint">wengcheng.invalid{latest.path}</span>
+                <span className="num ml-3 truncate text-[11px] text-muted">wengcheng.invalid{latest.path}</span>
               </div>
               <pre className="term-line num max-h-[420px] overflow-auto p-4 text-[11px] leading-relaxed text-muted">
                 {formatBody(latest.body)}

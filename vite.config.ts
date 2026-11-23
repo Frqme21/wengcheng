@@ -8,6 +8,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@shared': path.resolve(process.cwd(), 'src/shared'),
+      '@': path.resolve(process.cwd(), 'src/client'),
     },
   },
   build: {
