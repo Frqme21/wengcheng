@@ -74,7 +74,7 @@ export default function TopologyMap({ snapshot, selectedId, onSelect }: Props) {
   const avgMs = (snapshot?.totals.avgDecisionMicros ?? 0) / 1000;
 
   return (
-    <div data-tour-id="traffic-map" className="surface overflow-hidden">
+    <div data-tour-id="traffic-map" className="surface animate-rise overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line-soft px-6 py-4">
         <div className="flex items-center gap-2">
           <span className={`h-2 w-2 rounded-full ${sessions.length > 0 ? 'bg-rust' : 'bg-sage'}`} />
@@ -144,7 +144,7 @@ export default function TopologyMap({ snapshot, selectedId, onSelect }: Props) {
               >
                 <title>{`${session.id.slice(-6)}: ${categoryLabel(session.category)}. ${riskLabel(session.riskScore)}. Click to inspect.`}</title>
                 <circle cx={cx} cy={cy} r="22" fill="transparent" />
-                <circle cx={cx} cy={cy} r={selected ? 12 : 9} fill={PALETTE.card} stroke={color} strokeWidth={selected ? 2.4 : 1.7} />
+                <circle className="map-dot" cx={cx} cy={cy} r={selected ? 12 : 9} fill={PALETTE.card} stroke={color} strokeWidth={selected ? 2.4 : 1.7} />
                 <circle cx={cx} cy={cy} r="3" fill={color} />
               </g>
             );

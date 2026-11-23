@@ -89,7 +89,7 @@ export default function ControlBar({
   const actions = buildActions(aiReady);
 
   return (
-    <section className="surface p-6 sm:p-8" aria-labelledby="try-title">
+    <section className="surface animate-rise p-6 sm:p-8" aria-labelledby="try-title">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex max-w-[65ch] flex-col gap-2">
           <div className="section-label">Interactive demo</div>
@@ -98,7 +98,7 @@ export default function ControlBar({
             Every button sends a real HTTP request to this server. The reply appears in the attacker view on the right.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="stagger flex flex-wrap gap-2">
           <button className="btn btn-primary" onClick={onPlayDemo} disabled={disabled}>
             <PlayIcon />
             {demoStatus ?? 'Play the whole story'}
@@ -114,7 +114,7 @@ export default function ControlBar({
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="stagger mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {actions.map((item) => {
           const tone = TONES[item.tone];
           return (

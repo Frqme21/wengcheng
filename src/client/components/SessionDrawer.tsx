@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { SessionRecord, ThreatAnalysis } from '../../shared/types';
 import { PALETTE } from '../theme';
 
@@ -51,6 +51,7 @@ function Gauge({ score, hostile }: { score: number; hostile: boolean }) {
       <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90" aria-hidden="true">
         <circle cx="50" cy="50" r={radius} fill="none" stroke={PALETTE.line} strokeWidth="8" />
         <circle
+          className="gauge-progress"
           cx="50" cy="50" r={radius} fill="none" stroke={tone.color} strokeWidth="8" strokeLinecap="round"
           strokeDasharray={`${progress} ${circumference}`}
         />
@@ -68,6 +69,23 @@ export default function SessionDrawer({
 }: Props) {
   const asideRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const [mounted, setMounted] = useState(open);
+  const [closing, setClosing] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      setClosing(false);
+      return;
+    }
+    if (!mounted) return;
+    setClosing(true);
+    const timer = window.setTimeout(() => {
+      setMounted(false);
+      setClosing(false);
+    }, 220);
+    return () => window.clearTimeout(timer);
+  }, [open, mounted]);
 
   useEffect(() => {
     if (!open) return;
@@ -94,7 +112,7 @@ export default function SessionDrawer({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [onClose, open]);
 
-  if (!open || !session) return null;
+  if (!mounted || !session) return null;
 
   const hostile = session.status !== 'legitimate';
   const tone = riskTone(session.riskScore, hostile);
@@ -102,11 +120,14 @@ export default function SessionDrawer({
   const seconds = session.timeWastedMs / 1000;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-ink/25" onClick={onClose}>
+    <div
+      className={`drawer-backdrop fixed inset-0 z-50 flex justify-end bg-ink/25 ${closing ? 'is-closing' : ''}`}
+      onClick={onClose}
+    >
       <aside
         ref={asideRef}
         data-tour-id="session-drawer"
-        className="flex h-full w-full max-w-[544px] flex-col border-l border-line bg-card"
+        className={`drawer-panel flex h-full w-full max-w-[544px] flex-col border-l border-line bg-card ${closing ? 'is-closing' : ''}`}
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -130,7 +151,7 @@ export default function SessionDrawer({
           </button>
         </header>
 
-        <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
+        <div className="drawer-stagger flex-1 space-y-6 overflow-y-auto px-6 py-6">
           <div className="surface-raised p-6">
             <div className="flex items-center gap-6">
               <Gauge score={session.riskScore} hostile={hostile} />

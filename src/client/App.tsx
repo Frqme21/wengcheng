@@ -335,7 +335,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen overflow-x-clip pb-10">
-      <header className="sticky top-0 z-40 border-b border-line-soft bg-paper">
+      <header className="animate-fade sticky top-0 z-40 border-b border-line-soft bg-paper">
         <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-4 px-6 py-4">
           <div className="flex items-center gap-4">
             <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-teal/40 bg-teal/[0.07]">
@@ -373,7 +373,7 @@ export default function App() {
       </header>
 
       <main className="mx-auto max-w-[1800px] space-y-6 px-6 pb-12 pt-6">
-        <section className="surface p-6 sm:p-8" aria-labelledby="story-title">
+        <section className="surface animate-rise p-6 sm:p-8" aria-labelledby="story-title">
           <div className="flex max-w-[65ch] flex-col gap-2">
             <div className="section-label">Live demo</div>
             <h1 id="story-title" className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold tracking-tight text-ink">
@@ -385,7 +385,7 @@ export default function App() {
               and the right side shows the reply the attacker receives.
             </p>
           </div>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="stagger mt-6 grid gap-4 md:grid-cols-3">
             <Step number="1" title="A request arrives" body="It could be a customer, a scanner, or a scraper." />
             <Step number="2" title="The gate decides fast" body="Known tricks get a saved fake answer. No AI needed." />
             <Step number="3" title="You watch both sides" body="The attacker sees fake data. You see what they tried." />
@@ -433,7 +433,7 @@ export default function App() {
           )}
         </div>
 
-        <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-line-soft pt-4 text-xs text-faint">
+        <footer className="animate-fade flex flex-wrap items-center justify-between gap-2 border-t border-line-soft pt-4 text-xs text-faint">
           <span>瓮城 · Fake city, real requests</span>
           <span className="num">
             {snapshot?.totals.requests ?? 0} checked · {snapshot?.totals.diverted ?? 0} sent to the fake city · {(snapshot?.totals.secondsWasted ?? 0).toFixed(1)} seconds wasted by attackers
@@ -465,7 +465,7 @@ export default function App() {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`rounded-xl border bg-card px-4 py-2 text-xs ${
+            className={`toast-enter rounded-xl border bg-card px-4 py-2 text-xs ${
               toast.level === 'warn'
                 ? 'border-rust/50 text-rust'
                 : toast.level === 'success'
@@ -483,7 +483,7 @@ export default function App() {
 
 function Step({ number, title, body }: { number: string; title: string; body: string }) {
   return (
-    <div className="surface-raised flex gap-4 p-4">
+    <div className="surface-raised surface-interactive flex gap-4 p-4">
       <span className="num flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-paper text-xs text-teal">
         {number}
       </span>

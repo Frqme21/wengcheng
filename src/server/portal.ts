@@ -31,6 +31,17 @@ main{max-width:1080px;margin:48px auto;padding:0 28px}h1{font-size:30px;margin:0
 table{width:100%;border-collapse:collapse;margin-top:20px}td,th{text-align:left;padding:12px;border-bottom:1px solid #162231;font-size:13px}th{color:#7b93a5;font-weight:500}
 .badge{display:inline-block;padding:3px 9px;border:1px solid #1b6f78;border-radius:100px;color:#00e5ff;font-size:11px}
 footer{max-width:1080px;margin:60px auto;padding:18px 28px;border-top:1px solid #162231;color:#516779;font-size:11px}
+nav a{transition:color 180ms cubic-bezier(0.16,1,0.3,1)}
+.card,.badge,table{transition:border-color 200ms cubic-bezier(0.16,1,0.3,1),transform 200ms cubic-bezier(0.16,1,0.3,1)}
+.card:hover{transform:translateY(-2px);border-color:#1b6f78}
+@keyframes portal-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes portal-fade{from{opacity:0}to{opacity:1}}
+header{animation:portal-fade 260ms cubic-bezier(0.16,1,0.3,1) backwards}
+main>*,.grid .card,tbody tr{animation:portal-rise 360ms cubic-bezier(0.16,1,0.3,1) backwards}
+.grid .card:nth-child(1){animation-delay:80ms}.grid .card:nth-child(2){animation-delay:130ms}.grid .card:nth-child(3){animation-delay:180ms}.grid .card:nth-child(4){animation-delay:230ms}
+tbody tr:nth-child(1){animation-delay:120ms}tbody tr:nth-child(2){animation-delay:160ms}tbody tr:nth-child(3){animation-delay:200ms}tbody tr:nth-child(4){animation-delay:240ms}
+footer{animation:portal-fade 400ms cubic-bezier(0.16,1,0.3,1) backwards;animation-delay:260ms}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style></head><body>
 <header><div class="brand">AEGISCLOUD <span>ENTERPRISE PORTAL · INNER CITADEL</span></div>
 <nav><a href="/portal/api/overview">Overview</a><a href="/portal/api/users">Directory</a><a href="/portal/api/billing">Billing</a><a href="/portal/admin">Admin</a></nav></header>

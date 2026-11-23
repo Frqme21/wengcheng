@@ -39,7 +39,7 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
   const current = pending[pending.length - 1];
 
   return (
-    <section className="surface flex min-h-[420px] flex-col overflow-hidden" aria-labelledby="attacker-title">
+    <section className="surface animate-rise flex min-h-[420px] flex-col overflow-hidden" aria-labelledby="attacker-title">
       <div className="border-b border-line-soft bg-rust/[0.035] px-6 py-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -70,14 +70,14 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
       </div>
 
       {current && (
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line-soft bg-clay/[0.045] px-6 py-3 text-xs text-clay">
+        <div className="animate-fade flex flex-wrap items-center justify-between gap-2 border-b border-line-soft bg-clay/[0.045] px-6 py-3 text-xs text-clay">
           <span className="num truncate">Sending {current.label}: {current.path}</span>
           <span className="shrink-0">Waiting for reply</span>
         </div>
       )}
 
       {responses.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 py-16 text-center">
+        <div className="tab-enter flex flex-1 flex-col items-center justify-center gap-4 px-8 py-16 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-line bg-raised text-teal">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="m5 7 7 5-7 5V7Zm9 0h5m-5 5h5m-5 5h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -89,7 +89,7 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
           </p>
         </div>
       ) : tab === 'replies' ? (
-        <div className="max-h-[620px] flex-1 space-y-4 overflow-y-auto bg-paper p-4" aria-live="polite">
+        <div className="tab-enter stagger max-h-[620px] flex-1 space-y-4 overflow-y-auto bg-paper p-4" aria-live="polite">
           {responses.map((response) => {
             const tone = responseTone(response);
             return (
@@ -124,7 +124,7 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
           })}
         </div>
       ) : (
-        <div className="flex-1 bg-paper p-4">
+        <div className="tab-enter flex-1 bg-paper p-4">
           {!latest ? (
             <div className="text-sm text-faint">No reply to preview yet.</div>
           ) : latest.body.trim().startsWith('<') ? (

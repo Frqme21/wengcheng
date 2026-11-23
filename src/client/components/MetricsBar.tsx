@@ -52,7 +52,7 @@ function Metric({
 }) {
   const color = ACCENTS[accent];
   return (
-    <div className="surface p-6" style={{ borderTop: `2px solid ${color}` }}>
+    <div className="surface surface-interactive p-6" style={{ borderTop: `2px solid ${color}` }}>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -83,7 +83,7 @@ export default function MetricsBar({ snapshot }: Props) {
   const events = snapshot?.events ?? [];
 
   return (
-    <section aria-label="Live numbers" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section aria-label="Live numbers" className="stagger grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <Metric
         label="Attackers in the fake city"
         value={String(totals?.activeTrapped ?? 0)}

@@ -74,7 +74,7 @@ export default function DemoTokenControl({ required, onMessage }: Props) {
       </button>
 
       {open && (
-        <div className="surface-raised absolute right-0 top-full z-50 mt-2 w-72 p-4" role="group" aria-label="Demo token entry">
+        <div className="popover-enter surface-raised absolute right-0 top-full z-50 mt-2 w-72 p-4" role="group" aria-label="Demo token entry">
           <div className="text-xs font-semibold text-ink">Demo access token</div>
           <p className="mt-2 text-[11px] leading-relaxed text-faint">
             Saved for this tab only. Needed for simulator actions, the 403 gate, reports, and reset.

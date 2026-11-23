@@ -194,6 +194,92 @@ g[role="button"]:hover circle { stroke-width: 3; }
   to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 
+/* Shared motion vocabulary. `backwards` keeps the pre-animation state during
+   stagger delays but releases the transform once settled, so hover and active
+   states keep working. */
+@keyframes rise-in {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translate3d(16px, 0, 0) scale(0.96); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes popover-in {
+  from { opacity: 0; transform: translate3d(0, -6px, 0) scale(0.98); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes drawer-in {
+  from { transform: translate3d(100%, 0, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes drawer-out {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(100%, 0, 0); }
+}
+
+@keyframes flow-dash {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -26; }
+}
+
+.animate-rise { animation: rise-in 360ms var(--ease) backwards; }
+.animate-fade { animation: fade-in 300ms var(--ease) backwards; }
+.animate-scale { animation: scale-in 320ms var(--ease) backwards; }
+.toast-enter { animation: toast-in 320ms var(--ease) backwards; }
+.popover-enter { animation: popover-in 240ms var(--ease) backwards; }
+.tab-enter { animation: scale-in 260ms var(--ease) backwards; }
+.flow-line { animation: flow-dash 2.4s ease-in-out infinite alternate; }
+.map-dot { transition: r 260ms var(--ease), stroke-width 260ms var(--ease); }
+.gauge-progress { transition: stroke-dasharray 600ms var(--ease); }
+
+.stagger > * { animation: rise-in 360ms var(--ease) backwards; }
+.stagger > :nth-child(1) { animation-delay: 0ms; }
+.stagger > :nth-child(2) { animation-delay: 50ms; }
+.stagger > :nth-child(3) { animation-delay: 100ms; }
+.stagger > :nth-child(4) { animation-delay: 150ms; }
+.stagger > :nth-child(5) { animation-delay: 200ms; }
+.stagger > :nth-child(6) { animation-delay: 250ms; }
+.stagger > :nth-child(n + 7) { animation-delay: 280ms; }
+
+.surface-interactive {
+  transition: transform 220ms var(--ease), box-shadow 220ms var(--ease), border-color 220ms var(--ease);
+}
+.surface-interactive:hover {
+  transform: translate3d(0, -2px, 0);
+  border-color: var(--line-hover);
+  box-shadow: 0 12px 28px -20px oklch(0.25 0.018 210 / 0.35);
+}
+
+.drawer-backdrop { animation: fade-in 240ms var(--ease) both; }
+.drawer-backdrop.is-closing { animation: fade-out 200ms var(--ease) both; }
+.drawer-panel { animation: drawer-in 340ms var(--ease) both; }
+.drawer-panel.is-closing { animation: drawer-out 200ms var(--ease) both; }
+.drawer-stagger > * { animation: rise-in 380ms var(--ease) backwards; }
+.drawer-stagger > :nth-child(1) { animation-delay: 120ms; }
+.drawer-stagger > :nth-child(2) { animation-delay: 170ms; }
+.drawer-stagger > :nth-child(3) { animation-delay: 220ms; }
+.drawer-stagger > :nth-child(n + 4) { animation-delay: 260ms; }
+
 .term-line { white-space: pre-wrap; word-break: break-word; }
 
 @media (prefers-reduced-motion: reduce) {

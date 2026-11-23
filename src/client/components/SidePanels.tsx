@@ -52,7 +52,7 @@ export function EventStream({
   selectedId: string | null;
 }) {
   return (
-    <section className="surface flex min-h-[320px] flex-col overflow-hidden" aria-labelledby="requests-title">
+    <section className="surface animate-rise flex min-h-[320px] flex-col overflow-hidden" aria-labelledby="requests-title">
       <div className="flex items-center justify-between gap-4 border-b border-line-soft px-6 py-4">
         <div>
           <div className="section-label">Most recent first</div>
@@ -61,7 +61,7 @@ export function EventStream({
         <span className="tag border-line text-faint num">{events.length} shown</span>
       </div>
 
-      <div className="max-h-[380px] flex-1 overflow-y-auto">
+      <div className="stagger max-h-[380px] flex-1 overflow-y-auto">
         {events.length === 0 && (
           <div className="px-5 py-12 text-center text-sm leading-relaxed text-faint">
             No requests yet. Use a button above to send one.
@@ -100,7 +100,7 @@ export function EventStream({
 export function CachePanel({ snapshot }: { snapshot: TelemetrySnapshot | null }) {
   const entries = snapshot?.cache ?? [];
   return (
-    <section className="surface flex min-h-[320px] flex-col overflow-hidden" aria-labelledby="cache-title">
+    <section className="surface animate-rise flex min-h-[320px] flex-col overflow-hidden" aria-labelledby="cache-title">
       <div className="flex items-center justify-between gap-4 border-b border-line-soft px-6 py-4">
         <div>
           <div className="section-label">Fast answers, no model call</div>
@@ -113,7 +113,7 @@ export function CachePanel({ snapshot }: { snapshot: TelemetrySnapshot | null })
         The first time a trick appears we build a decoy. After that, the same answer is reused instantly.
       </p>
 
-      <div className="max-h-[300px] flex-1 overflow-y-auto">
+      <div className="stagger max-h-[300px] flex-1 overflow-y-auto">
         {entries.length === 0 && (
           <div className="px-5 py-10 text-center text-sm leading-relaxed text-faint">
             No fake answers saved yet. Send a suspicious request to create one.
@@ -151,7 +151,7 @@ export function LlmPanel({ snapshot }: { snapshot: TelemetrySnapshot | null }) {
   const withoutAi = saved + spent > 0 ? Math.round((saved / (saved + spent)) * 100) : 100;
 
   return (
-    <section className="surface p-6" aria-labelledby="ai-title">
+    <section className="surface animate-rise p-6" aria-labelledby="ai-title">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-col gap-2">
           <div className="section-label">Only when needed</div>
@@ -162,7 +162,7 @@ export function LlmPanel({ snapshot }: { snapshot: TelemetrySnapshot | null }) {
         </span>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4">
+      <div className="stagger mt-6 grid grid-cols-2 gap-4">
         <div className="surface-raised p-4">
           <div className="text-[11px] text-faint">Times the AI was used</div>
           <div className="num mt-2 text-xl font-semibold text-plum">{totals?.aiWakeups ?? 0}</div>
