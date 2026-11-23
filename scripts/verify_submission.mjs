@@ -509,22 +509,28 @@ async function checkBrowserJourney() {
     'Boolean(document.querySelector(\'[role="dialog"][aria-label="Product tour"]\'))',
   ));
   for (let step = 1; step <= 6; step += 1) {
-    await waitFor(`tour step ${step}`, async () => (await bodyText()).includes(`Step ${step} of 6`));
+    await waitFor(`tour step ${step}`, async () =>
+      (await bodyText()).toLowerCase().includes(`step ${step} of 6`), 15000, 200);
     await clickButton('Next');
     await delay(250);
     if (step === 6) {
-      await waitFor('403 gate visible on final tour step', async () => (await bodyText()).includes('403 gate on'), 3000, 100);
+      await waitFor('403 gate visible on final tour step', async () =>
+        (await bodyText()).toLowerCase().includes('403 gate on'), 3000, 100);
     }
   }
   await waitFor('tour completion', async () => cdp.evaluate(
     '!document.querySelector(\'[role="dialog"][aria-label="Product tour"]\')',
   ), 15000, 200);
 
-  const beforeDemo = await snapshot();
   await clickButton('Play the whole story');
+  // "Play the whole story" resets telemetry first, then replays all five scenarios
+  // (2 + 2 + 3 + 1 + 2 = 10 requests) and finally reopens the 403 gate.
   await waitFor('full story requests', async () => {
     const state = await snapshot();
-    return state.totals.requests >= beforeDemo.totals.requests + 10 && !state.portcullis.engaged;
+    const prefixes = ['SIM-OK-', 'SIM-SQL-', 'SIM-REC-', 'SIM-AI-', 'SIM-SCR-'];
+    return state.totals.requests >= 10
+      && !state.portcullis.engaged
+      && prefixes.every((prefix) => state.sessions.some((session) => session.id.startsWith(prefix)));
   }, 60000, 500);
   await waitForBodyText('Play the whole story', 20000);
 
