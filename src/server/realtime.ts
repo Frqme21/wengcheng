@@ -9,27 +9,40 @@ import type {
 } from '../shared/types.js';
 import { analyst } from './analyst.js';
 import { assertCommandAllowed, DemoAuthError } from './config.js';
+import { deception } from './deception.js';
 import { state, TOKENS_SAVED_PER_SHORTCUT } from './state.js';
 import { hash32, shortId } from './util.js';
 
 const wss = new WebSocketServer({ noServer: true });
 const clients = new Set<WebSocket>();
+const socketTokens = new WeakMap<WebSocket, string | undefined>();
 let broadcastScheduled = false;
 
 export function attachRealtime(server: HttpServer): void {
   server.on('upgrade', (req, socket, head) => {
-    const pathname = (req.url ?? '').split('?')[0];
-    if (pathname !== '/ws') return;
-    wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws, req));
+    const url = new URL(req.url ?? '/ws', 'http://localhost');
+    if (url.pathname !== '/ws') {
+      socket.destroy();
+      return;
+    }
+    const socketToken = url.searchParams.get('token')?.trim() || undefined;
+    wss.handleUpgrade(req, socket, head, (ws) => {
+      socketTokens.set(ws, socketToken);
+      wss.emit('connection', ws, req);
+    });
   });
 
   wss.on('connection', (ws) => {
+    const socketToken = socketTokens.get(ws);
     clients.add(ws);
     send(ws, { type: 'snapshot', payload: state.snapshot() });
     ws.on('message', async (raw) => {
       try {
         const command = JSON.parse(String(raw)) as ClientCommand;
-        await handleCommand(command);
+        const withToken = command && typeof command === 'object' && !command.token && socketToken
+          ? { ...command, token: socketToken }
+          : command;
+        await handleCommand(withToken);
       } catch (error) {
         if (!(error instanceof DemoAuthError)) console.warn('[ws] invalid command', error);
       }
@@ -90,6 +103,20 @@ export async function handleCommand(command: ClientCommand): Promise<void> {
     if (error instanceof DemoAuthError) emitToast('warn', error.message);
     throw error;
   }
+
+  if (command.type === 'simulate' && !(command.action in SIMULATION_PLANS)) {
+    emitToast('warn', 'Unknown simulator action');
+    return;
+  }
+  if (command.type === 'analyze' && (typeof command.sessionId !== 'string' || !command.sessionId.trim())) {
+    emitToast('warn', 'Choose a session to analyze');
+    return;
+  }
+  if (command.type === 'portcullis' && typeof command.engaged !== 'boolean') {
+    emitToast('warn', 'Malformed gate command');
+    return;
+  }
+
   switch (command.type) {
     case 'simulate':
       await runSimulation(command.action, command.token);
@@ -115,6 +142,7 @@ export async function handleCommand(command: ClientCommand): Promise<void> {
       break;
     case 'reset':
       state.reset();
+      deception.reset();
       emitToast('info', 'Telemetry grid reset');
       break;
   }
@@ -235,6 +263,11 @@ export async function runSimulation(action: SimulatorAction, token?: string): Pr
       broadcast({
         type: 'toast',
         payload: { level: 'warn', message: `Simulation request failed: ${(error as Error).message}` },
+      });
+    } finally {
+      broadcast({
+        type: 'simulator-status',
+        payload: { id, label: plan.label, phase: 'done', sessionId: plan.sessionId, path: request.path },
       });
     }
 

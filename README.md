@@ -32,7 +32,7 @@ Optional model keys, where either one enables AI decoy synthesis and neither mea
 | `OPENROUTER_API_KEY` | not set | Secondary OpenAI-compatible endpoint, used when NVIDIA key is unset |
 | `OPENROUTER_MODEL` | `meta-llama/llama-3.1-8b-instruct:free` | OpenRouter model id |
 | `PORT` | `3000` | Listen port |
-| `DEMO_ADMIN_TOKEN` | not set | When set, protects reset, the 403 gate, new AI decoys, and AI reports |
+| `DEMO_ADMIN_TOKEN` | not set | When set, protects all simulator actions, reset, the 403 gate, and AI reports |
 
 ---
 
@@ -44,7 +44,7 @@ Optional model keys, where either one enables AI decoy synthesis and neither mea
 4. Click a hostile session on the topology map and try **Write a short report** or **Use AI for a deeper report**.
 5. Engage the portcullis to show the 403 gate.
 
-If `DEMO_ADMIN_TOKEN` is set, the top bar shows a lock icon. Enter the token there before reset, the 403 gate, new AI decoys, AI reports, the tour, or the full story. The dashboard and cached or procedural actions stay open to everyone.
+If `DEMO_ADMIN_TOKEN` is set, the top bar shows a lock icon. Enter the token there before any simulator action, reset, the 403 gate, AI reports, the tour, or the full story. Telemetry reads and report downloads stay open to everyone.
 
 For the short written pitch, proof points, and demo script, see [PITCH.md](./PITCH.md).
 
@@ -132,7 +132,7 @@ The included `Dockerfile` builds the React bundle and compiles the TypeScript se
 
 Set `NVIDIA_API_KEY` and/or `OPENROUTER_API_KEY` as environment secrets for AI decoys. Leaving them unset is fully supported.
 
-For a public demo, set `DEMO_ADMIN_TOKEN`. Protected actions then require the token from the `x-demo-token` header, a `?token=` URL, or the lock icon in the top bar. WebSocket command actions use the same guard. Snapshot reads and cached or procedural demo actions stay public.
+For a public demo, set `DEMO_ADMIN_TOKEN`. Every control-plane action then requires the token from the `x-demo-token` header, a `?token=` URL, or the lock icon in the top bar. WebSocket command actions use the same guard. Snapshot reads, report downloads, and clean traffic stay public.
 
 ---
 

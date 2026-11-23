@@ -35,6 +35,7 @@ export interface DeceptionResult {
   source: DeceptionCacheEntry['source'];
   cacheKey: string;
   aiWakeup: boolean;
+  tokensSaved: number;
   drip: boolean;
   latencyMs: number;
   note?: string;
@@ -48,6 +49,7 @@ interface BuiltDecoy {
   source: DeceptionCacheEntry['source'];
   drip: boolean;
   note?: string;
+  aiWakeup?: boolean;
 }
 
 function fakeUsers(seed: number, count = 12) {
@@ -213,10 +215,10 @@ function pickTemplateKey(verdict: SentinelVerdict, normalized: string): string {
   }
 }
 
-function isNovelPayload(verdict: SentinelVerdict, path: string, query: string): boolean {
+function isNovelPayload(verdict: SentinelVerdict, path: string): boolean {
   if (verdict.category === 'novel') return true;
-  const combined = `${path} ${query}`;
-  return /\/v\d+\/|\b(?:table|schema|columns|database|reconcile|ledger)\s*=|\b(?:information_schema|sqlite_master)\b/i.test(combined);
+  const pathname = path.split('?')[0] ?? '';
+  return /\/v\d+\/|\/(?:internal|private|debug|graphql|reconcile|ledger)\b/i.test(pathname);
 }
 
 function buildProceduralDecoy(ctx: DecoyContext, templateKey: string, novel = false): BuiltDecoy {
@@ -282,6 +284,7 @@ function buildProceduralDecoy(ctx: DecoyContext, templateKey: string, novel = fa
     source: ctx.ai ? 'ai' : 'procedural',
     drip: Boolean(template.drip),
     note: ctx.ai ? 'Novel probe served by on-demand AI synthesis.' : 'Context-aware procedural decoy (0 tokens).',
+    aiWakeup: Boolean(ctx.ai),
   };
 }
 
@@ -317,6 +320,12 @@ async function slowDrip(
 
 class DeceptionEngine {
   private sessionAiCalls = new Map<string, number>();
+  private inflight = new Map<string, Promise<BuiltDecoy>>();
+
+  reset(): void {
+    this.sessionAiCalls.clear();
+    this.inflight.clear();
+  }
 
   async respond(req: Request, verdict: SentinelVerdict, sessionId: string): Promise<DeceptionResult> {
     const path = normalizePath(req.path || req.originalUrl || '/');
@@ -325,66 +334,44 @@ class DeceptionEngine {
     const query = typeof req.query === 'object' && req.query !== null ? JSON.stringify(req.query) : '';
     const cacheKey = `${verdict.category}:${normalized}`;
     const queryPayload = truncate(query, 300);
-
     const templateKey = pickTemplateKey(verdict, normalized);
-    let built: BuiltDecoy;
-    let fromCache = false;
-    let aiWakeup = false;
 
     const cached = state.findCache(cacheKey);
+    let built: BuiltDecoy;
+    let fromCache = false;
+    let tokensSaved = 0;
+
     if (cached) {
       fromCache = true;
-      state.countCacheHit(cacheKey);
-      const template = TEMPLATES[cached.decoyId === 'novel:generic' ? 'novel:generic' : templateKey];
-      built = {
-        decoyId: cached.decoyId,
-        contentType: template?.contentType ?? 'application/json',
-        status: 200,
-        body: this.cachedBody(cached, verdict, sessionId, basePath, queryPayload),
-        source: cached.source,
-        drip: Boolean(template?.drip),
-        note: `Cache hit · ${cached.hits + 1} replayed probes · 0 tokens`,
-      };
+      tokensSaved = state.countCacheHit(sessionId, cacheKey);
+      built = this.buildFromCache(cached, verdict, sessionId, basePath, queryPayload, templateKey);
     } else {
-      const novel = isNovelPayload(verdict, req.originalUrl || req.path, query);
-      const budgetUsed = this.sessionAiCalls.get(sessionId) ?? 0;
-      let ai: Record<string, unknown> | undefined;
-
-      if (novel && budgetUsed < MAX_AI_CALLS_PER_SESSION && llm.configured) {
-        aiWakeup = true;
-        this.sessionAiCalls.set(sessionId, budgetUsed + 1);
-        state.countAiWakeup(sessionId);
-        ai = (await llm.synthesizeDecoy({
-          sessionId,
-          category: verdict.category,
-          method: req.method,
-          path: req.originalUrl || req.path,
-          query,
-          payload: queryPayload,
-          userAgent: String(req.headers['user-agent'] ?? ''),
-        })) ?? undefined;
+      const existing = this.inflight.get(cacheKey);
+      if (existing) {
+        // Identical concurrent probes share the first build and are charged as cache replays.
+        fromCache = true;
+        let shared: BuiltDecoy | undefined;
+        try {
+          shared = await existing;
+        } catch {
+          shared = undefined;
+        }
+        const fresh = state.findCache(cacheKey);
+        tokensSaved = state.countCacheHit(sessionId, cacheKey);
+        built = fresh
+          ? this.buildFromCache(fresh, verdict, sessionId, basePath, queryPayload, templateKey)
+          : (shared ?? this.fallbackProcedural(req, verdict, sessionId, templateKey, queryPayload));
+      } else {
+        const build = this.buildDecoy(req, verdict, sessionId, cacheKey, normalized, templateKey, query, queryPayload)
+          .finally(() => { this.inflight.delete(cacheKey); });
+        this.inflight.set(cacheKey, build);
+        try {
+          built = await build;
+        } catch {
+          built = this.fallbackProcedural(req, verdict, sessionId, templateKey, queryPayload);
+        }
+        tokensSaved = built.source === 'ai' ? 0 : state.countHeuristicHit(sessionId);
       }
-
-      built = buildProceduralDecoy({
-        verdict,
-        sessionId,
-        path: req.originalUrl || req.path,
-        query,
-        payload: queryPayload,
-        ai,
-      }, templateKey, novel);
-
-      const entry: DeceptionCacheEntry = {
-        key: cacheKey,
-        category: verdict.category,
-        pathPattern: normalized,
-        source: built.source,
-        decoyId: built.decoyId,
-        hits: 0,
-        createdAt: Date.now(),
-        preview: truncate(built.body.replace(/\s+/g, ' ').slice(0, 110), 110),
-      };
-      state.putCache(entry);
     }
 
     // Progressive portcullis-adjacent tarpit: 400ms -> 3500ms.
@@ -400,10 +387,99 @@ class DeceptionEngine {
       decoyId: built.decoyId,
       source: built.source,
       cacheKey,
-      aiWakeup,
+      aiWakeup: built.aiWakeup === true,
+      tokensSaved,
       drip,
       latencyMs,
       note: fromCache ? built.note : (built.note ?? 'Deterministic decoy (0 tokens).'),
+    };
+  }
+
+  private async buildDecoy(
+    req: Request,
+    verdict: SentinelVerdict,
+    sessionId: string,
+    cacheKey: string,
+    normalized: string,
+    templateKey: string,
+    query: string,
+    queryPayload: string,
+  ): Promise<BuiltDecoy> {
+    const novel = isNovelPayload(verdict, req.originalUrl || req.path);
+    const budgetUsed = this.sessionAiCalls.get(sessionId) ?? 0;
+    let ai: Record<string, unknown> | undefined;
+
+    if (novel && budgetUsed < MAX_AI_CALLS_PER_SESSION && llm.configured) {
+      this.sessionAiCalls.set(sessionId, budgetUsed + 1);
+      ai = (await llm.synthesizeDecoy({
+        sessionId,
+        category: verdict.category,
+        method: req.method,
+        path: req.originalUrl || req.path,
+        query,
+        payload: queryPayload,
+        userAgent: String(req.headers['user-agent'] ?? ''),
+      })) ?? undefined;
+      if (ai) state.countAiWakeup(sessionId);
+    }
+
+    const built = buildProceduralDecoy({
+      verdict,
+      sessionId,
+      path: req.originalUrl || req.path,
+      query,
+      payload: queryPayload,
+      ai,
+    }, templateKey, novel);
+
+    const entry: DeceptionCacheEntry = {
+      key: cacheKey,
+      category: verdict.category,
+      pathPattern: normalized,
+      source: built.source,
+      decoyId: built.decoyId,
+      hits: 0,
+      createdAt: Date.now(),
+      preview: truncate(built.body.replace(/\s+/g, ' ').slice(0, 110), 110),
+    };
+    state.putCache(entry);
+    return built;
+  }
+
+  private fallbackProcedural(
+    req: Request,
+    verdict: SentinelVerdict,
+    sessionId: string,
+    templateKey: string,
+    queryPayload: string,
+  ): BuiltDecoy {
+    return buildProceduralDecoy({
+      verdict,
+      sessionId,
+      path: req.originalUrl || req.path,
+      query: '',
+      payload: queryPayload,
+    }, templateKey, verdict.category === 'novel');
+  }
+
+  private buildFromCache(
+    entry: DeceptionCacheEntry,
+    verdict: SentinelVerdict,
+    sessionId: string,
+    path: string,
+    payload: string,
+    templateKey: string,
+  ): BuiltDecoy {
+    const template = TEMPLATES[templateKey] ?? TEMPLATES['novel:generic']!;
+    return {
+      decoyId: entry.decoyId,
+      contentType: entry.source === 'ai' || verdict.category === 'novel' ? 'application/json' : template.contentType,
+      status: 200,
+      body: this.cachedBody(entry, verdict, sessionId, path, payload),
+      source: entry.source,
+      drip: Boolean(template.drip),
+      note: `Cache hit · ${entry.hits + 1} replayed probes · 0 tokens`,
+      aiWakeup: false,
     };
   }
 
@@ -428,6 +504,15 @@ class DeceptionEngine {
         generated_by: llm.providerLabel,
         requested_path: path,
       }, null, 2);
+    }
+    if (verdict.category === 'novel') {
+      return buildProceduralDecoy({
+        verdict,
+        sessionId,
+        path,
+        query: '',
+        payload,
+      }, 'novel:generic', true).body;
     }
     return template.body({ verdict, sessionId, path, query: '', payload });
   }

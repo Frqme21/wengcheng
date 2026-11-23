@@ -62,6 +62,21 @@ function find(regex: RegExp, value: string): string | null {
 // All regexes are compiled once at module load: evaluation is pure and allocation-light.
 const RULES: SignatureRule[] = [
   {
+    // Unknown internal surfaces win over generic payload signatures so one novel
+    // probe is classified and cached as a single coherent incident.
+    category: 'novel',
+    signature: 'UNKNOWN_INTERNAL_SURFACE',
+    severity: 2,
+    confidence: 74,
+    test: (c) => {
+      if (!c.isPortal) return null;
+      if (KNOWN_PORTAL_ROUTES.has(c.path.split('?')[0] ?? '')) return null;
+      if (/\/(?:api\/v\d+|internal|private|debug|metrics|graphql|reconcile|ledger)\b/i.test(c.path)) return 'novel internal surface';
+      if (/\b(?:table|schema|dump|debug|export|columns|database|filter)\s*=/i.test(c.query)) return 'structured probe parameter';
+      return null;
+    },
+  },
+  {
     category: 'rce',
     signature: 'OS_COMMAND_INJECTION',
     severity: 5,
@@ -141,19 +156,6 @@ const RULES: SignatureRule[] = [
     severity: 3,
     confidence: 94,
     test: (c) => find(/\b(?:sqlmap|nikto|nmap|masscan|acunetix|dirbuster|wpscan|gobuster|ffuf|nessus|openvas|zgrab)\b/i, c.ua),
-  },
-  {
-    category: 'novel',
-    signature: 'UNKNOWN_INTERNAL_SURFACE',
-    severity: 2,
-    confidence: 74,
-    test: (c) => {
-      if (!c.isPortal) return null;
-      if (KNOWN_PORTAL_ROUTES.has(c.path.split('?')[0] ?? '')) return null;
-      if (/\/(?:api\/v\d+|internal|private|debug|metrics|graphql|reconcile|ledger)\b/i.test(c.path)) return 'novel internal surface';
-      if (/\b(?:table|schema|dump|debug|export|columns|database|filter)\s*=/i.test(c.query)) return 'structured probe parameter';
-      return null;
-    },
   },
 ];
 

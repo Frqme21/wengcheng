@@ -11,7 +11,7 @@ export default {
         'line-soft': '#E7E1D6',
         ink: '#202A2E',
         muted: '#5A6668',
-        faint: '#8A8F8B',
+        faint: '#666C68',
         teal: '#2F6F73',
         clay: '#A9583A',
         rust: '#9C3B32',

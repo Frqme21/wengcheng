@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from 'node:crypto';
 import type { ClientCommand } from '../shared/types.js';
 
 const configuredDemoToken = process.env.DEMO_ADMIN_TOKEN?.trim() ?? '';
@@ -20,14 +21,18 @@ export function isProtectedCommand(command: ClientCommand): boolean {
   switch (command.type) {
     case 'reset':
     case 'portcullis':
-      return true;
     case 'analyze':
-      return Boolean(command.forceAi);
     case 'simulate':
-      return command.action === 'portcullis' || command.action === 'novel';
+      return true;
     default:
       return false;
   }
+}
+
+function tokenMatches(supplied: string): boolean {
+  const expected = createHash('sha256').update(DEMO_ADMIN_TOKEN).digest();
+  const actual = createHash('sha256').update(supplied).digest();
+  return timingSafeEqual(expected, actual);
 }
 
 export function assertCommandAllowed(command: ClientCommand): void {
@@ -37,7 +42,7 @@ export function assertCommandAllowed(command: ClientCommand): void {
   if (!supplied) {
     throw new DemoAuthError(401, 'This action needs the demo token. Use the lock icon in the top bar.');
   }
-  if (supplied !== DEMO_ADMIN_TOKEN) {
+  if (!tokenMatches(supplied)) {
     throw new DemoAuthError(403, 'Demo token was not accepted.');
   }
 }

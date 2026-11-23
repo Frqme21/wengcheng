@@ -1,20 +1,25 @@
 const STORAGE_KEY = 'wengcheng-demo-token';
 
+let memoryToken = '';
+
 export function readDemoToken(): string {
   try {
-    return window.sessionStorage.getItem(STORAGE_KEY) ?? '';
+    const stored = window.sessionStorage.getItem(STORAGE_KEY);
+    if (stored) return stored.trim();
   } catch {
-    return '';
+    // Session storage can be blocked in kiosk or privacy modes.
   }
+  return memoryToken;
 }
 
 export function saveDemoToken(token: string): void {
   const value = token.trim();
+  memoryToken = value;
   try {
     if (value) window.sessionStorage.setItem(STORAGE_KEY, value);
     else window.sessionStorage.removeItem(STORAGE_KEY);
   } catch {
-    // Session storage is optional. The server still guards every protected action.
+    // The in-memory fallback keeps protected actions working for this tab.
   }
 }
 

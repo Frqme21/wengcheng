@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { clearDemoToken, readDemoToken, saveDemoToken } from '../demoToken';
 
 interface Props {
@@ -7,6 +7,7 @@ interface Props {
 }
 
 export default function DemoTokenControl({ required, onMessage }: Props) {
+  const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(() => readDemoToken());
   const [stored, setStored] = useState(() => Boolean(readDemoToken()));
@@ -16,6 +17,22 @@ export default function DemoTokenControl({ required, onMessage }: Props) {
     setValue(token);
     setStored(Boolean(token));
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open]);
 
   if (!required) return null;
 
@@ -41,23 +58,26 @@ export default function DemoTokenControl({ required, onMessage }: Props) {
   };
 
   return (
-    <div className="relative">
+    <div ref={rootRef} className="relative">
       <button
         type="button"
-        className="btn btn-quiet min-h-[38px] px-2.5 py-1.5 text-xs"
+        className={`btn min-h-[38px] gap-1.5 px-3 py-1.5 text-xs ${
+          stored ? 'border-sage/40 bg-sage/[0.07] text-sage' : 'border-rust/45 bg-rust/[0.06] text-rust'
+        }`}
         onClick={() => setOpen((visible) => !visible)}
         aria-label="Demo access token"
         aria-expanded={open}
-        title="Demo access token"
+        title={stored ? 'Demo token saved for this tab' : 'Enter the demo token'}
       >
         <LockIcon locked={!stored} />
+        <span>{stored ? 'Token set' : 'Token'}</span>
       </button>
 
       {open && (
-        <div className="surface-raised absolute right-0 top-full z-50 mt-2 w-72 p-3">
+        <div className="surface-raised absolute right-0 top-full z-50 mt-2 w-72 p-3" role="group" aria-label="Demo token entry">
           <div className="text-xs font-semibold text-ink">Demo access token</div>
           <p className="mt-1 text-[11px] leading-relaxed text-faint">
-            Saved for this tab only. Needed for the 403 gate, new AI decoys, AI reports, and reset.
+            Saved for this tab only. Needed for simulator actions, the 403 gate, reports, and reset.
           </p>
           <input
             type="password"

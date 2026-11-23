@@ -2,8 +2,8 @@
 """
 Wèngchéng attacker demonstration CLI.
 
-Fires realistic recon, a novel SQL/API probe (which wakes the configured
-NVIDIA NIM / OpenRouter model exactly once), then falls into the slow-drip
+Fires realistic recon, a novel SQL/API probe (which wakes a configured model
+once, or uses a procedural decoy with no keys), then falls into the slow-drip
 tarpit. Uses only the Python standard library.
 
     python3 scripts/attacker.py
@@ -44,6 +44,10 @@ def request(base, path, *, headers=None, stream=False, timeout=40):
         response = urllib.request.urlopen(req, timeout=timeout)
     except urllib.error.HTTPError as exc:
         return exc.code, dict(exc.headers), exc.read(), (time.perf_counter() - started) * 1000
+    except (urllib.error.URLError, TimeoutError) as exc:
+        reason = getattr(exc, "reason", exc)
+        print(f"{RED}  ! request failed: {reason}{RESET}")
+        return 0, {}, b"", (time.perf_counter() - started) * 1000
     body = b""
     if stream:
         while True:
@@ -89,10 +93,14 @@ def main() -> int:
         ),
     ]
 
+    failed = False
+
     for label, path, headers in phases:
         print(f"{CYAN}▸ {label}{RESET}")
         print(f"  {DIM}GET {path}{RESET}")
         status, resp_headers, body, elapsed = request(base, path, headers=headers)
+        if status == 0:
+            failed = True
         decoy = resp_headers.get("X-Wengcheng-Decoy", "—")
         source = resp_headers.get("X-Wengcheng-Source", "real")
         color = MINT if decoy == "—" else AMBER
@@ -116,6 +124,10 @@ def main() -> int:
             f"  ← {status}  {elapsed / 1000:.1f}s  "
             f"{len(body)} bytes  decoy={resp_headers.get('X-Wengcheng-Decoy')}{RESET}\n"
         )
+
+    if failed:
+        print(f"{RED}! Attack sequence incomplete: one or more requests never reached the target.{RESET}")
+        return 1
 
     print(f"{MINT}✓ Attack sequence complete. Open the dashboard to inspect the captured session.{RESET}")
     print(f"{DIM}  Reports: http://{args.host}:{args.port}/api/reports/<session-id>.md{RESET}\n")

@@ -11,7 +11,7 @@
   --line-soft: #E7E1D6;
   --ink: #202A2E;
   --muted: #5A6668;
-  --faint: #8A8F8B;
+  --faint: #666C68;
   --teal: #2F6F73;
   --clay: #A9583A;
   --rust: #9C3B32;
@@ -91,6 +91,8 @@ body {
 }
 
 .focus-ring:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+g[role="button"]:focus-visible { outline: none; }
+g[role="button"]:focus-visible circle { stroke: var(--teal); stroke-width: 2.5; }
 
 .flow-line { stroke-dasharray: 6 7; }
 

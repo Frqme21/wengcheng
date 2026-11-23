@@ -19,7 +19,7 @@ const isDev = process.env.NODE_ENV !== 'production';
 const PORT = Number(process.env.PORT || 3000);
 const app = express();
 app.disable('x-powered-by');
-app.set('trust proxy', true);
+app.set('trust proxy', 'loopback');
 app.use(express.json({ limit: '32kb' }));
 
 app.get('/health', (_req, res) => {
@@ -54,7 +54,8 @@ app.get('/api/reports/:file', (req, res) => {
     res.status(400).json({ error: 'expected .md or .json report' });
     return;
   }
-  const sessionId = decodeURIComponent(match[1] ?? '');
+  // Express has already decoded the route parameter. A second decode could throw on a literal '%'.
+  const sessionId = match[1] ?? '';
   const format = match[2];
   const session = state.sessions.get(sessionId);
   if (!session) {
@@ -73,6 +74,13 @@ app.get('/api/reports/:file', (req, res) => {
     res.send(analyst.json(session, analysis));
   }
 });
+
+function isLoopback(req: Request): boolean {
+  const candidates = [req.socket.remoteAddress, req.ip]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => value.replace(/^::ffff:/, ''));
+  return candidates.some((value) => value === '127.0.0.1' || value === '::1');
+}
 
 function bypassSentinel(pathname: string): boolean {
   return (
@@ -100,7 +108,8 @@ app.use(async (req: Request, res: Response, next: NextFunction) => {
   const ip = req.ip || req.socket.remoteAddress || 'unknown';
   const ua = String(req.headers['user-agent'] ?? '');
   const simId = req.headers['x-wc-sim-id'];
-  const forcedSession = Array.isArray(simId) ? simId[0] : simId;
+  const rawSessionId = Array.isArray(simId) ? simId[0] : simId;
+  const forcedSession = isLoopback(req) ? rawSessionId : undefined;
   const session = state.getOrCreateSession(ip, ua, forcedSession || undefined);
 
   state.applyDecision(session.id, verdict.category, verdict.action === 'divert', decisionMicros);
@@ -109,18 +118,6 @@ app.use(async (req: Request, res: Response, next: NextFunction) => {
     // Legitimate traffic never touches the deception engine or any LLM client.
     return next();
   }
-
-  state.markDiverted();
-  state.countHeuristicHit();
-  if (verdict.category !== 'none') {
-    state.addPayload(session.id, {
-      category: verdict.category,
-      path: req.originalUrl || req.path,
-      value: verdict.payload,
-      signature: verdict.signature,
-    });
-  }
-  if (verdict.severity >= 3) state.noteThreat(verdict.severity);
 
   const baseEvent = {
     id: shortId('EVT'),
@@ -157,6 +154,17 @@ app.use(async (req: Request, res: Response, next: NextFunction) => {
     return;
   }
 
+  state.markDiverted();
+  if (verdict.category !== 'none') {
+    state.addPayload(session.id, {
+      category: verdict.category,
+      path: req.originalUrl || req.path,
+      value: verdict.payload,
+      signature: verdict.signature,
+    });
+  }
+  if (verdict.severity >= 3) state.noteThreat(verdict.severity);
+
   try {
     const result = await deception.respond(req, verdict, session.id);
     await deception.send(res, result);
@@ -168,7 +176,7 @@ app.use(async (req: Request, res: Response, next: NextFunction) => {
       latencyMs: Math.round(performance.now() - started),
       decoyId: result.decoyId,
       aiWakeup: result.aiWakeup,
-      tokensSaved: result.source === 'ai' ? 0 : 720,
+      tokensSaved: result.tokensSaved,
     } satisfies RequestEvent);
   } catch (error) {
     console.error('[deception] failed to serve decoy', error);
@@ -179,10 +187,16 @@ app.use(async (req: Request, res: Response, next: NextFunction) => {
 // Protected production surface (only reachable when the sentinel says PASS).
 app.use('/portal', portal);
 
-app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
+app.use((error: Error & { type?: string; status?: number }, _req: Request, res: Response, _next: NextFunction) => {
+  if (error.type === 'entity.parse.failed' || error.status === 400) {
+    if (!res.headersSent) res.status(400).json({ error: 'invalid_json', message: 'Request body must be valid JSON.' });
+    return;
+  }
   console.error('[http]', error);
   if (!res.headersSent) res.status(500).json({ error: 'internal_error' });
 });
+
+app.use('/api', (_req, res) => res.status(404).json({ error: 'not_found' }));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Single-process frontend delivery: Vite middleware in dev, static build in prod.

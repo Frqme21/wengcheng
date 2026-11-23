@@ -20,44 +20,50 @@ const EXPECTED_REQUESTS: Record<SimulatorAction, number> = {
   portcullis: 0,
 };
 
-const TOUR_STEPS: TourStep[] = [
-  {
-    id: 'normal',
-    targetId: 'sim-legitimate',
-    title: 'Normal visitors',
-    body: 'Regular users pass straight to the real app with no added delay. Nothing is faked for them.',
-  },
-  {
-    id: 'known-attack',
-    targetId: 'sim-sqli',
-    title: 'Known attacks',
-    body: 'The front gate spots this old SQL trick in under 1 ms and sends it to the fake city. The AI does not wake up.',
-  },
-  {
-    id: 'new-attack',
-    targetId: 'sim-novel',
-    title: 'Brand-new attacks',
-    body: 'NVIDIA NIM wakes up once to invent a believable fake database table. We save that answer so the next request is free.',
-  },
-  {
-    id: 'map',
-    targetId: 'traffic-map',
-    title: 'Traffic map',
-    body: 'Attackers stay busy touching fake files and slow exports. The real app on the right stays untouched.',
-  },
-  {
-    id: 'report',
-    targetId: 'session-drawer',
-    title: 'Incident report',
-    body: 'The AI writes a plain-English report about what this attacker tried to steal. You can read it here or download it.',
-  },
-  {
-    id: 'gate',
-    targetId: 'gate-toggle',
-    title: 'Emergency gate',
-    body: 'The 403 gate can slam shut at any time. Hostile traffic gets blocked instantly while normal visitors still pass.',
-  },
-];
+function buildTourSteps(aiReady: boolean): TourStep[] {
+  return [
+    {
+      id: 'normal',
+      targetId: 'sim-legitimate',
+      title: 'Normal visitors',
+      body: 'Regular users pass straight to the real app with no added delay. Nothing is faked for them.',
+    },
+    {
+      id: 'known-attack',
+      targetId: 'sim-sqli',
+      title: 'Known attacks',
+      body: 'The front gate spots this old SQL trick in under 1 ms and sends it to the fake city. The AI does not wake up.',
+    },
+    {
+      id: 'new-attack',
+      targetId: 'sim-novel',
+      title: 'Brand-new attacks',
+      body: aiReady
+        ? 'NVIDIA NIM wakes up once to invent a believable fake database table. We save that answer so the next request is free.'
+        : 'A saved rule invents a believable fake table with no model key. We cache that answer so the next request is free.',
+    },
+    {
+      id: 'map',
+      targetId: 'traffic-map',
+      title: 'Traffic map',
+      body: 'Attackers stay busy touching fake files and slow exports. The real app on the right stays untouched.',
+    },
+    {
+      id: 'report',
+      targetId: 'session-drawer',
+      title: 'Incident report',
+      body: aiReady
+        ? 'The AI writes a plain-English report about what this attacker tried to steal. You can read it here or download it.'
+        : 'A plain-English report is written locally about what this attacker tried to steal. You can read it here or download it.',
+    },
+    {
+      id: 'gate',
+      targetId: 'gate-toggle',
+      title: 'Emergency gate',
+      body: 'The 403 gate can slam shut at any time. Hostile traffic gets blocked instantly while normal visitors still pass.',
+    },
+  ];
+}
 
 const sleep = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
 
@@ -80,6 +86,7 @@ export default function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [split, setSplit] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
+  const [analysisRequestId, setAnalysisRequestId] = useState<string | null>(null);
   const [demoStatus, setDemoStatus] = useState<string | null>(null);
   const [actionBusy, setActionBusy] = useState(false);
   const [clock, setClock] = useState(() => new Date());
@@ -97,8 +104,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (analysis) setAnalyzing(false);
-  }, [analysis]);
+    if (analysis && analysis.sessionId === analysisRequestId) setAnalyzing(false);
+  }, [analysis, analysisRequestId]);
 
   useEffect(() => {
     const latest = responses[0];
@@ -115,14 +122,21 @@ export default function App() {
   );
 
   const engaged = snapshot?.portcullis.engaged ?? false;
-  const busy = pending.length > 0 || actionBusy || demoStatus !== null || tourStep !== null;
+  const ready = snapshot !== null;
+  const aiReady = snapshot?.llm.configured ?? false;
+  const busy = !ready || pending.length > 0 || actionBusy || demoStatus !== null || tourStep !== null;
   const demoAdminRequired = snapshot?.demo.adminTokenRequired ?? false;
+  const tourSteps = useMemo(() => buildTourSteps(aiReady), [aiReady]);
 
   const blockWithoutToken = useCallback((message: string) => {
+    if (!snapshot) {
+      pushToast('warn', 'The grid is still connecting. Try again in a moment.');
+      return true;
+    }
     if (!demoAdminRequired || readDemoToken()) return false;
     pushToast('warn', message);
     return true;
-  }, [demoAdminRequired, pushToast]);
+  }, [demoAdminRequired, pushToast, snapshot]);
 
   const inspect = useCallback((id: string) => {
     setSelectedId(id);
@@ -139,10 +153,7 @@ export default function App() {
   }, [pendingRef, responseCountRef]);
 
   const runAction = useCallback(async (action: SimulatorAction) => {
-    if (
-      (action === 'novel' || action === 'portcullis') &&
-      blockWithoutToken('This step needs the demo token. Use the lock icon in the top bar.')
-    ) return;
+    if (blockWithoutToken('Simulator actions need the demo token. Use the lock icon in the top bar.')) return;
 
     const baseline = responseCountRef.current;
     send({ type: 'simulate', action });
@@ -173,6 +184,8 @@ export default function App() {
     setSelectedId(null);
     setDrawerOpen(false);
     setDemoStatus(null);
+    setAnalyzing(false);
+    setAnalysisRequestId(null);
     send({ type: 'reset' });
     await sleep(500);
     setActionBusy(false);
@@ -186,6 +199,8 @@ export default function App() {
     clear();
     setSelectedId(null);
     setDrawerOpen(false);
+    setAnalyzing(false);
+    setAnalysisRequestId(null);
     setDemoStatus('Getting ready');
     send({ type: 'reset' });
     await sleep(650);
@@ -217,8 +232,9 @@ export default function App() {
   }, [blockWithoutToken, clear, runAction, send]);
 
   const onAnalyze = (sessionId: string, forceAi: boolean) => {
-    if (forceAi && blockWithoutToken('AI reports need the demo token. Use the lock icon in the top bar.')) return;
+    if (blockWithoutToken('Reports need the demo token. Use the lock icon in the top bar.')) return;
     setAnalyzing(true);
+    setAnalysisRequestId(sessionId);
     setDrawerOpen(true);
     send({ type: 'analyze', sessionId, forceAi });
   };
@@ -230,6 +246,8 @@ export default function App() {
     tourSessionIdRef.current = null;
     setTourStep(null);
     setDrawerOpen(false);
+    setAnalyzing(false);
+    setAnalysisRequestId(null);
     setActionBusy(false);
     send({ type: 'portcullis', engaged: false });
   }, [send]);
@@ -255,6 +273,7 @@ export default function App() {
         if (!tourAnalysisTriggeredRef.current) {
           tourAnalysisTriggeredRef.current = true;
           setAnalyzing(true);
+          setAnalysisRequestId(hostile.id);
           send({ type: 'analyze', sessionId: hostile.id, forceAi: true });
         }
       }
@@ -272,6 +291,8 @@ export default function App() {
     setSelectedId(null);
     setDrawerOpen(false);
     setDemoStatus(null);
+    setAnalyzing(false);
+    setAnalysisRequestId(null);
     tourAnalysisTriggeredRef.current = false;
     tourSessionIdRef.current = null;
     send({ type: 'reset' });
@@ -299,7 +320,7 @@ export default function App() {
       }
 
       send({ type: 'simulate', action: 'portcullis' });
-      await sleep(220);
+      await sleep(1000);
       finishTour();
     } finally {
       tourAdvancingRef.current = false;
@@ -329,7 +350,7 @@ export default function App() {
           <div className="flex flex-wrap items-center gap-2">
             <span className={`tag ${connected ? 'border-sage/35 bg-sage/[0.07] text-sage' : 'border-rust/40 bg-rust/[0.07] text-rust'}`}>
               <span className={`h-1.5 w-1.5 rounded-full ${connected ? 'bg-sage' : 'bg-rust'}`} />
-              {connected ? 'Live updates on' : 'Reconnecting'}
+              {connected ? 'Live updates on' : snapshot ? 'Reconnecting' : 'Connecting'}
             </span>
             <span className={`tag ${snapshot?.llm.configured ? 'border-plum/35 bg-plum/[0.07] text-plum' : 'border-line text-faint'}`}>
               {snapshot?.llm.configured ? 'AI ready' : 'Using saved decoys'}
@@ -381,6 +402,7 @@ export default function App() {
           engaged={engaged}
           busy={busy}
           demoStatus={demoStatus}
+          aiReady={aiReady}
         />
 
         <div className={`grid gap-5 ${split ? 'xl:grid-cols-[minmax(0,1fr)_400px]' : ''}`}>
@@ -424,13 +446,14 @@ export default function App() {
         open={drawerOpen}
         latestAnalysis={analysis}
         analyzing={analyzing}
+        aiReady={aiReady}
         onClose={() => setDrawerOpen(false)}
         onAnalyze={onAnalyze}
       />
 
       {tourStep !== null && (
         <SpotlightTour
-          steps={TOUR_STEPS}
+          steps={tourSteps}
           currentStep={tourStep}
           onNext={() => void advanceTour()}
           onBack={backTour}

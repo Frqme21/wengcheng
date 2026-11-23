@@ -137,7 +137,7 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
                 title="Fake page preview"
                 sandbox=""
                 srcDoc={latest.body}
-                className="h-[440px] w-full rounded-xl border border-line bg-white"
+                className="h-[440px] w-full rounded-xl border border-line bg-paper"
               />
             </div>
           ) : (

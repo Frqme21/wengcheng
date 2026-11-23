@@ -115,7 +115,7 @@ LLMs are cheap enough to generate believable fake services on demand, but still 
 
 | Risk | Mitigation |
 | --- | --- |
-| Public demo state or model spend can be changed through `/api/commands` | Set `DEMO_ADMIN_TOKEN`. Protected actions need a token from the top bar lock, a `?token=` URL, or the `x-demo-token` header |
+| Public demo state or model spend can be changed through `/api/commands` | Set `DEMO_ADMIN_TOKEN`. Every control action needs a token from the top bar lock, a `?token=` URL, or the `x-demo-token` header |
 | LLM key missing or provider unavailable | The app falls back to procedural decoys and the short report still works |
 | Judges may not understand deception at first | Lead with "attackers waste time, your model budget does not" |
 | Dashboard looks complex on first load | Start with the 1-minute tour instead of explaining every panel |

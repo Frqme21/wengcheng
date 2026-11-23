@@ -46,6 +46,7 @@ export interface RequestEvent {
 
 export interface ThreatAnalysis {
   id: string;
+  sessionId: string;
   at: number;
   narrative: string;
   mitre: string[];

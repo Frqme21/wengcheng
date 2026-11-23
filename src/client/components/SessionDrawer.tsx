@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { SessionRecord, ThreatAnalysis } from '../../shared/types';
 import { PALETTE } from '../theme';
 
@@ -7,6 +7,7 @@ interface Props {
   open: boolean;
   latestAnalysis: ThreatAnalysis | null;
   analyzing: boolean;
+  aiReady: boolean;
   onClose: () => void;
   onAnalyze: (sessionId: string, forceAi: boolean) => void;
 }
@@ -63,12 +64,31 @@ function Gauge({ score, hostile }: { score: number; hostile: boolean }) {
 }
 
 export default function SessionDrawer({
-  session, open, latestAnalysis, analyzing, onClose, onAnalyze,
+  session, open, latestAnalysis, analyzing, aiReady, onClose, onAnalyze,
 }: Props) {
+  const asideRef = useRef<HTMLElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     if (!open) return;
+    closeRef.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (event.key !== 'Tab' || !asideRef.current) return;
+      const focusable = [...asideRef.current.querySelectorAll<HTMLElement>('button:not(:disabled), a[href]')];
+      if (focusable.length === 0) return;
+      const first = focusable[0]!;
+      const last = focusable[focusable.length - 1]!;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
@@ -78,12 +98,13 @@ export default function SessionDrawer({
 
   const hostile = session.status !== 'legitimate';
   const tone = riskTone(session.riskScore, hostile);
-  const analysis = session.analysis ?? latestAnalysis;
+  const analysis = session.analysis ?? (latestAnalysis?.sessionId === session.id ? latestAnalysis : null);
   const seconds = session.timeWastedMs / 1000;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-ink/25" onClick={onClose}>
       <aside
+        ref={asideRef}
         data-tour-id="session-drawer"
         className="flex h-full w-full max-w-[540px] flex-col border-l border-line bg-card"
         onClick={(event) => event.stopPropagation()}
@@ -98,6 +119,7 @@ export default function SessionDrawer({
             <p className="mt-0.5 text-xs text-faint">Started {new Date(session.startedAt).toLocaleTimeString()}</p>
           </div>
           <button
+            ref={closeRef}
             onClick={onClose}
             className="focus-ring flex h-9 w-9 items-center justify-center rounded-xl border border-line text-muted hover:border-rust/50 hover:text-rust"
             aria-label="Close session details"
@@ -239,7 +261,9 @@ export default function SessionDrawer({
             </a>
           </div>
           <p className="text-center text-[11px] text-faint">
-            The short report uses saved rules. The AI report calls the model and costs tokens.
+            {aiReady
+              ? 'The short report uses saved rules. The deeper report calls the model and costs tokens.'
+              : 'Both reports are generated locally right now. No model key is needed.'}
           </p>
         </footer>
       </aside>

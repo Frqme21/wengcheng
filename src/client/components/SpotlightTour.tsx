@@ -46,6 +46,7 @@ export default function SpotlightTour({ steps, currentStep, onNext, onBack, onSk
   const [box, setBox] = useState<Box | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ top: MARGIN, left: MARGIN });
   const tooltipRef = useRef<HTMLDivElement | null>(null);
+  const nextRef = useRef<HTMLButtonElement | null>(null);
 
   const measure = useCallback(() => {
     const element = document.querySelector<HTMLElement>(`[data-tour-id="${step.targetId}"]`);
@@ -155,7 +156,13 @@ export default function SpotlightTour({ steps, currentStep, onNext, onBack, onSk
   }, [measure, step.targetId]);
 
   useEffect(() => {
+    nextRef.current?.focus();
+  }, [currentStep]);
+
+  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
       if (event.key === 'Escape') onSkip();
       if (event.key === 'ArrowRight') onNext();
       if (event.key === 'ArrowLeft' && currentStep > 0) onBack();
@@ -232,7 +239,7 @@ export default function SpotlightTour({ steps, currentStep, onNext, onBack, onSk
             >
               Back
             </button>
-            <button onClick={onNext} className="btn btn-primary min-h-[38px] px-4 py-1.5 text-xs">
+            <button ref={nextRef} onClick={onNext} className="btn btn-primary min-h-[38px] px-4 py-1.5 text-xs">
               Next
             </button>
           </div>

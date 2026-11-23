@@ -99,7 +99,10 @@ export function useGrid() {
             }
             case 'simulator-status': {
               const status = message.payload as SimulatorStatus;
-              const nextPending = [...pendingRef.current.filter((p) => p.id !== status.id), status].slice(-8);
+              const withoutId = pendingRef.current.filter((p) => p.id !== status.id);
+              const nextPending = status.phase === 'done'
+                ? withoutId
+                : [...withoutId, status].slice(-8);
               pendingRef.current = nextPending;
               setPending(nextPending);
               break;

@@ -15,8 +15,10 @@ const MAX_SESSIONS = 80;
 const SESSION_TTL_MS = 12 * 60 * 1000;
 const MAX_DECISION_SAMPLES = 400;
 
-/** Estimated token spend avoided by one deterministic/cache shortcut. */
+/** Estimated token spend avoided by one deterministic shortcut. */
 export const TOKENS_SAVED_PER_SHORTCUT = 720;
+/** Estimated token spend avoided when a cached decoy is replayed. */
+export const TOKENS_SAVED_PER_CACHE_HIT = 1000;
 
 export const DECOYS = [
   { id: 'decoy-auth-db', label: 'Decoy Auth DB', kind: 'database' },
@@ -161,20 +163,24 @@ class WengchengState extends EventEmitter {
 
   // ------------------------------------------------------------- economics
 
-  countHeuristicHit(tokens = TOKENS_SAVED_PER_SHORTCUT): void {
+  countHeuristicHit(sessionId: string, tokens = TOKENS_SAVED_PER_SHORTCUT): number {
     this.totals.heuristicHits += 1;
     this.totals.tokensSaved += tokens;
-    const session = this.latestThreatSession();
+    const session = this.sessions.get(sessionId);
     if (session) session.tokensSaved += tokens;
+    this.emit('changed');
+    return tokens;
   }
 
-  countCacheHit(key: string, tokens = TOKENS_SAVED_PER_SHORTCUT + 280): void {
+  countCacheHit(sessionId: string, key: string, tokens = TOKENS_SAVED_PER_CACHE_HIT): number {
     this.totals.cacheHits += 1;
     this.totals.tokensSaved += tokens;
     const entry = this.cache.get(key);
     if (entry) entry.hits += 1;
-    const session = this.latestThreatSession();
+    const session = this.sessions.get(sessionId);
     if (session) session.tokensSaved += tokens;
+    this.emit('changed');
+    return tokens;
   }
 
   countTokensSpent(tokens: number): void {
@@ -182,9 +188,9 @@ class WengchengState extends EventEmitter {
     this.emit('changed');
   }
 
-  countAiWakeup(sessionId?: string): void {
+  countAiWakeup(sessionId: string): void {
     this.totals.aiWakeups += 1;
-    const session = sessionId ? this.sessions.get(sessionId) : this.latestThreatSession();
+    const session = this.sessions.get(sessionId);
     if (session) session.aiWakeups += 1;
     this.emit('changed');
   }
@@ -206,14 +212,6 @@ class WengchengState extends EventEmitter {
 
   get llmInFlight(): number {
     return this._llmInFlight;
-  }
-
-  private latestThreatSession(): SessionRecord | undefined {
-    for (const event of this.events) {
-      const session = this.sessions.get(event.sessionId);
-      if (session && session.status !== 'legitimate') return session;
-    }
-    return undefined;
   }
 
   // --------------------------------------------------------------- sliding window

@@ -9,23 +9,32 @@ interface Props {
   engaged: boolean;
   busy: boolean;
   demoStatus: string | null;
+  aiReady: boolean;
 }
 
 type Tone = 'sage' | 'rust' | 'clay' | 'plum';
 
-const ACTIONS: Array<{
+function buildActions(aiReady: boolean): Array<{
   action: SimulatorAction;
   step: string;
   label: string;
   outcome: string;
   tone: Tone;
-}> = [
-  { action: 'legitimate', step: '1', label: 'Send a normal visitor', outcome: 'Real app answers. No AI.', tone: 'sage' },
-  { action: 'sqli', step: '2', label: 'Try an old SQL trick', outcome: 'Saved fake ledger. No AI.', tone: 'rust' },
-  { action: 'recon', step: '3', label: 'Look for secret files', outcome: 'Fake secrets and admin page.', tone: 'clay' },
-  { action: 'novel', step: '4', label: 'Ask for a new endpoint', outcome: 'AI invents a fake table once.', tone: 'plum' },
-  { action: 'scrape', step: '5', label: 'Scrape data too fast', outcome: 'Large fake file, sent slowly.', tone: 'clay' },
-];
+}> {
+  return [
+    { action: 'legitimate', step: '1', label: 'Send a normal visitor', outcome: 'Real app answers. No AI.', tone: 'sage' },
+    { action: 'sqli', step: '2', label: 'Try an old SQL trick', outcome: 'Saved fake ledger. No AI.', tone: 'rust' },
+    { action: 'recon', step: '3', label: 'Look for secret files', outcome: 'Fake secrets and admin page.', tone: 'clay' },
+    {
+      action: 'novel',
+      step: '4',
+      label: 'Ask for a new endpoint',
+      outcome: aiReady ? 'AI invents a fake table once.' : 'Saved rule invents a fake table once.',
+      tone: 'plum',
+    },
+    { action: 'scrape', step: '5', label: 'Scrape data too fast', outcome: 'Large fake file, sent slowly.', tone: 'clay' },
+  ];
+}
 
 const TOUR_IDS: Partial<Record<SimulatorAction, string>> = {
   legitimate: 'sim-legitimate',
@@ -74,8 +83,10 @@ export default function ControlBar({
   engaged,
   busy,
   demoStatus,
+  aiReady,
 }: Props) {
   const disabled = busy;
+  const actions = buildActions(aiReady);
 
   return (
     <section className="surface p-5 sm:p-6" aria-labelledby="try-title">
@@ -104,7 +115,7 @@ export default function ControlBar({
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {ACTIONS.map((item) => {
+        {actions.map((item) => {
           const tone = TONES[item.tone];
           return (
             <button

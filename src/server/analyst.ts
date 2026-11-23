@@ -62,6 +62,7 @@ function proceduralAnalysis(ctx: AnalysisContext): ThreatAnalysis {
   const riskScore = Math.min(200, Math.round(ctx.riskScore + ctx.decoys.length * 2));
   return {
     id: shortId('RPT'),
+    sessionId: ctx.sessionId,
     at: Date.now(),
     narrative,
     mitre: mitre.length ? mitre : ['T1595: Active Scanning'],
@@ -89,14 +90,14 @@ function applyAi(analysis: ThreatAnalysis, ai: LlmAnalysis): ThreatAnalysis {
 }
 
 class ThreatAnalyst {
-  /** `forceAi` is set only by explicit analyst actions, preserving the zero-token default path. */
+  /** Only an explicit deeper-report request wakes the model. Idle summaries stay token-free. */
   async synthesize(sessionId: string, forceAi = false): Promise<ThreatAnalysis | null> {
     const session = state.sessions.get(sessionId);
     if (!session) return null;
     const base = proceduralAnalysis(buildContext(session));
     let result = base;
 
-    if ((forceAi || session.aiWakeups > 0) && llm.configured) {
+    if (forceAi && llm.configured) {
       const ai = await llm.synthesizeAnalysis(buildContext(session));
       if (ai) result = applyAi(base, ai);
     }
