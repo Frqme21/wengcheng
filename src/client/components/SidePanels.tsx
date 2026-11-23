@@ -63,7 +63,7 @@ export function EventStream({
 
       <div className="stagger max-h-[380px] flex-1 overflow-y-auto">
         {events.length === 0 && (
-          <div className="px-5 py-12 text-center text-sm leading-relaxed text-faint">
+          <div className="px-6 py-12 text-center text-sm leading-relaxed text-faint">
             No requests yet. Use a button above to send one.
           </div>
         )}
@@ -109,13 +109,13 @@ export function CachePanel({ snapshot }: { snapshot: TelemetrySnapshot | null })
         <span className="tag border-sage/35 bg-sage/[0.06] text-sage num">{entries.length} saved</span>
       </div>
 
-      <p className="border-b border-line-soft px-6 py-3 text-xs leading-relaxed text-faint">
+      <p className="border-b border-line-soft px-6 py-4 text-xs leading-relaxed text-faint">
         The first time a trick appears we build a decoy. After that, the same answer is reused instantly.
       </p>
 
       <div className="stagger max-h-[300px] flex-1 overflow-y-auto">
         {entries.length === 0 && (
-          <div className="px-5 py-10 text-center text-sm leading-relaxed text-faint">
+          <div className="px-6 py-10 text-center text-sm leading-relaxed text-faint">
             No fake answers saved yet. Send a suspicious request to create one.
           </div>
         )}

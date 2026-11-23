@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="oklch(0.9588 0.0127 86.8)"/>
+  <circle cx="600" cy="210" r="112" fill="oklch(0.5021 0.0651 200.9 / 0.10)" stroke="oklch(0.5021 0.0651 200.9 / 0.45)" stroke-width="2"/>
+  <text x="600" y="250" text-anchor="middle" font-family="Georgia, serif" font-size="104" fill="oklch(0.5021 0.0651 200.9)">瓮</text>
+  <text x="600" y="400" text-anchor="middle" font-family="Georgia, serif" font-size="72" font-weight="600" fill="oklch(0.2773 0.0157 224.2)">Wèngchéng</text>
+  <text x="600" y="460" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="28" fill="oklch(0.5008 0.0151 208.7)">A fake city behind one real gate</text>
+</svg>

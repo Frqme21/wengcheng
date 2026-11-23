@@ -17,7 +17,7 @@ const ACCENTS: Record<Accent, string> = {
 function Bar({ values, color }: { values: number[]; color: string }) {
   const max = Math.max(1, ...values);
   return (
-    <div className="flex h-8 items-end gap-1" aria-hidden="true">
+    <div className="flex h-8 items-end gap-2" aria-hidden="true">
       {values.map((value, index) => (
         <span
           key={index}
@@ -72,7 +72,7 @@ function Metric({
           </div>
           <p className="mt-2 max-w-[32ch] text-xs leading-relaxed text-faint">{explanation}</p>
         </div>
-        <div className="shrink-0 pt-1"><Bar values={bars} color={color} /></div>
+        <div className="shrink-0 pt-2"><Bar values={bars} color={color} /></div>
       </div>
     </div>
   );

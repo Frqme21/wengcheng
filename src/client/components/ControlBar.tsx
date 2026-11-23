@@ -1,10 +1,12 @@
+import type { MouseEvent } from 'react';
 import type { SimulatorAction } from '../../shared/types';
+import Magnetic from './Magnetic';
 import { PALETTE } from '../theme';
 
 interface Props {
   onSimulate: (action: SimulatorAction) => void;
-  onPlayDemo: () => void;
-  onTakeTour: () => void;
+  onPlayDemo: (event: MouseEvent<HTMLButtonElement>) => void;
+  onTakeTour: (event: MouseEvent<HTMLButtonElement>) => void;
   onReset: () => void;
   engaged: boolean;
   busy: boolean;
@@ -89,7 +91,7 @@ export default function ControlBar({
   const actions = buildActions(aiReady);
 
   return (
-    <section className="surface animate-rise p-6 sm:p-8" aria-labelledby="try-title">
+    <section className="surface animate-rise px-6 py-16 sm:px-8" aria-labelledby="try-title">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex max-w-[65ch] flex-col gap-2">
           <div className="section-label">Interactive demo</div>
@@ -98,15 +100,19 @@ export default function ControlBar({
             Every button sends a real HTTP request to this server. The reply appears in the attacker view on the right.
           </p>
         </div>
-        <div className="stagger flex flex-wrap gap-2">
-          <button className="btn btn-primary" onClick={onPlayDemo} disabled={disabled}>
-            <PlayIcon />
-            {demoStatus ?? 'Play the whole story'}
-          </button>
-          <button className="btn btn-quiet" onClick={onTakeTour} disabled={disabled}>
-            <TourIcon />
-            Take 1-min Tour
-          </button>
+        <div className="stagger flex flex-wrap items-start gap-2">
+          <Magnetic>
+            <button className="btn btn-primary" onClick={onPlayDemo} disabled={disabled}>
+              <PlayIcon />
+              {demoStatus ?? 'Play the whole story'}
+            </button>
+          </Magnetic>
+          <Magnetic>
+            <button className="btn btn-quiet" onClick={onTakeTour} disabled={disabled}>
+              <TourIcon />
+              Take 1-min Tour
+            </button>
+          </Magnetic>
           <button className="btn btn-quiet" onClick={onReset} disabled={disabled}>
             <ResetIcon />
             Start over

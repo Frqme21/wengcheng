@@ -45,7 +45,7 @@ function proceduralAnalysis(ctx: AnalysisContext): ThreatAnalysis {
   const narrative =
     `Session ${ctx.sessionId} exhibited ${ctx.categories.join(' / ') || 'unclassified'} behaviour across ` +
     `${reqCount} observed request${reqCount === 1 ? '' : 's'}. The outer gate classified the traffic in microseconds ` +
-    `and diverted it into the Wèngchéng courtyard before any real AegisCloud route was reached. ` +
+    `and diverted it into the Wèngchéng courtyard before any real inner route was reached. ` +
     `${primary === 'recon' ? 'The actor enumerated administrative and secret-bearing surfaces, ' : ''}` +
     `${primary === 'sqli' || primary === 'novel' ? `The actor submitted a structured payload (${truncate(topPayload, 120)}) against an internal-looking endpoint; ` : ''}` +
     `${ctx.decoys.length ? `the actor interacted with ${ctx.decoys.length} synthetic asset${ctx.decoys.length === 1 ? '' : 's'} ` : ''}` +
@@ -156,7 +156,7 @@ ${session.decoysTouched.map((d) => `- \`${d}\``).join('\n') || '- None'}
 
 ## Containment Outcome
 
-- Requests diverted before reaching the protected AegisCloud portal: **${session.requestCount}**
+- Requests diverted before reaching the protected Wèngchéng Inner Ward: **${session.requestCount}**
 - Attacker time consumed: **${Math.round(session.timeWastedMs / 100) / 10}s**
 - Portcullis lockdown engaged: **${session.portcullis ? 'YES' : 'no'}**
 - AI wakeups consumed by this session: **${session.aiWakeups}**

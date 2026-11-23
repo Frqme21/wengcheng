@@ -59,14 +59,14 @@ function fakeUsers(seed: number, count = 12) {
   return Array.from({ length: count }, (_, i) => ({
     id: `USR-${String(4820 + i + Math.floor(rnd() * 40))}`,
     name: `${first[Math.floor(rnd() * first.length)]} ${last[Math.floor(rnd() * last.length)]}`,
-    email: `user${i + 1}@aegiscloud-test.invalid`,
+    email: `resident${i + 1}@wengcheng-test.invalid`,
     role: rnd() > 0.75 ? 'finance_admin' : 'member',
     department: ['Treasury', 'Platform', 'Payments', 'Internal Audit'][Math.floor(rnd() * 4)],
     last_login: new Date(Date.now() - Math.floor(rnd() * 60) * 86_400_000).toISOString(),
   }));
 }
 
-const ENV_BODY = `# AegisCloud Enterprise Portal. SYNTHETIC SECRET CANARY
+const ENV_BODY = `# Wèngchéng Inner Ward. SYNTHETIC SECRET CANARY
 NODE_ENV=production
 APP_ENV=inner-citadel
 DATABASE_URL=postgres://aegis_readonly:F4KE-CANARY-ONLY@db.internal.invalid:5432/aegis_shadow
@@ -104,7 +104,7 @@ const TEMPLATES: Record<string, DecoyTemplate> = {
     contentType: 'application/json',
     body: () => JSON.stringify({
       canary: true,
-      repository: 'aegiscloud/inner-citadel (synthetic mirror)',
+      repository: 'wengcheng/inner-citadel (synthetic mirror)',
       refs: ['refs/heads/main', 'refs/heads/release/2026.11'],
       leaked_files: ['.env.production', 'config/deploy.key', 'docs/runbook.md'],
       notice: 'This repository is a monitored deception artifact.',
@@ -113,15 +113,30 @@ const TEMPLATES: Record<string, DecoyTemplate> = {
   'recon:admin': {
     decoyId: 'decoy-auth-db',
     contentType: 'text/html; charset=utf-8',
-    body: () => `<!doctype html><html><head><title>AegisCloud :: Inner Citadel Admin</title></head>
-<body style="font-family:monospace;background:#080c12;color:#9fb6c6;padding:32px">
-<h1 style="color:#00e5ff">AEGISCLOUD / CONTROL PLANE</h1>
-<p>Administrative console mirror. <b>SYNTHETIC SESSION</b></p>
-<table border="1" cellpadding="8" cellspacing="0" style="border-color:#162231">
+    body: () => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wèngchéng :: Gate House</title><style>
+:root{--paper:oklch(0.9588 0.0127 86.8);--card:oklch(0.9795 0.0098 87.5);--line:oklch(0.8661 0.018 81.3);--ink:oklch(0.2773 0.0157 224.2);--muted:oklch(0.5008 0.0151 208.7);--teal:oklch(0.5021 0.0651 200.9);--ease:cubic-bezier(0.16,1,0.3,1)}
+*,*::before,*::after{box-sizing:border-box}html{overflow-x:hidden}body{margin:0;min-height:100vh;padding:clamp(24px,6vw,64px);background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+main{width:clamp(320px,88vw,880px);margin:0 auto;padding:64px 24px;border:1px solid var(--line);border-radius:16px;background:var(--card);box-shadow:0 24px 64px -40px oklch(0.25 0.018 210 / 0.35);animation:rise 420ms var(--ease) backwards}
+.seal{display:inline-flex;width:48px;height:48px;align-items:center;justify-content:center;border:1px solid var(--teal);border-radius:12px;color:var(--teal);font-family:Georgia,serif;font-size:24px;animation:stamp 520ms var(--ease) backwards}
+h1{margin:24px 0 8px;font-family:Georgia,serif;font-size:clamp(1.5rem,4vw,2rem);letter-spacing:-0.03em}
+p{margin:0;max-width:65ch;color:var(--muted);font-size:14px;line-height:1.6}
+table{width:100%;margin-top:40px;border-collapse:collapse;font-family:ui-monospace,monospace;font-size:13px}
+td{padding:16px 8px;border-bottom:1px solid var(--line);text-align:left;word-break:break-all}
+td:first-child{width:32%;color:var(--muted)}
+@keyframes rise{from{opacity:0;transform:translate3d(0,16px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes stamp{from{opacity:0;transform:translate3d(0,-12px,0) scale(0.7) rotate(-12deg)}to{opacity:1;transform:translate3d(0,0,0) scale(1) rotate(0)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style></head><body><main>
+<span class="seal" aria-hidden="true">瓮</span>
+<h1>Wèngchéng / Gate House</h1>
+<p>Administrative console mirror. <b>SYNTHETIC SESSION</b>. All access is monitored.</p>
+<table>
 <tr><td>bootstrap_token</td><td>eyJmYWtlX2NhbmFyeSI6dHJ1ZSwic2NvcGUiOiJkZWNveSJ9</td></tr>
-<tr><td>node</td><td>inner-citadel-03.aegis.invalid</td></tr>
+<tr><td>node</td><td>inner-citadel-03.wengcheng.invalid</td></tr>
 <tr><td>audit</td><td>ALL ACCESS RECORDED BY WENGCHENG</td></tr>
-</table></body></html>`,
+</table>
+</main></body></html>`,
   },
   'recon:api-users': {
     decoyId: 'decoy-auth-db',
@@ -183,7 +198,7 @@ const TEMPLATES: Record<string, DecoyTemplate> = {
     decoyId: 'decoy-payroll',
     contentType: 'application/json',
     body: (ctx) => JSON.stringify({
-      service: 'AegisCloud Payroll Reconciliation (synthetic)',
+      service: 'Wèngchéng Ward Payroll Reconciliation (synthetic)',
       endpoint: ctx.path,
       status: 'degraded',
       canary: true,

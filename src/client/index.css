@@ -23,6 +23,7 @@
   --tour-accent-soft: oklch(0.5021 0.0651 200.9 / 0.12);
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --tour-ease: var(--ease);
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -282,6 +283,146 @@ g[role="button"]:hover circle { stroke-width: 3; }
 
 .term-line { white-space: pre-wrap; word-break: break-word; }
 
+/* LSP type pairing: one display voice for headings, one neutral voice for body. */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  font-weight: 600;
+}
+
+/* LSP subpixel enforcement on every transformed surface. */
+.animate-fade,
+.animate-rise,
+.animate-scale,
+.toast-enter,
+.popover-enter,
+.tab-enter,
+.surface-interactive,
+.drawer-panel,
+.tour-card,
+.tour-rise,
+.tour-seal,
+.brand-seal,
+.brand-name > span,
+.magnetic,
+.wipe-overlay {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* The seal is a layout actor: it arrives, follows the cursor inside 44px,
+   travels with a route wipe, and stamps when the gate changes state. */
+.brand-seal {
+  --pull-x: 0px;
+  --pull-y: 0px;
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in oklch, var(--teal) 40%, transparent);
+  border-radius: 12px;
+  background: color-mix(in oklch, var(--teal) 8%, transparent);
+  color: var(--teal);
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1;
+  transform: translate3d(var(--pull-x), var(--pull-y), 0);
+  transition: transform 260ms var(--ease), background-color 260ms var(--ease), border-color 260ms var(--ease);
+  animation: seal-arrive 560ms var(--ease) backwards;
+}
+
+.brand-seal:hover {
+  background: color-mix(in oklch, var(--teal) 14%, transparent);
+  border-color: color-mix(in oklch, var(--teal) 60%, transparent);
+}
+
+.brand-seal.is-engaged {
+  background: color-mix(in oklch, var(--rust) 10%, transparent);
+  border-color: color-mix(in oklch, var(--rust) 50%, transparent);
+  color: var(--rust);
+}
+
+.brand-seal.is-busy { animation: seal-breathe 1600ms var(--ease) infinite alternate; }
+.brand-seal.is-traveling { animation: seal-travel 620ms var(--ease) both; }
+.brand-seal.is-stamping { animation: seal-stamp 560ms var(--ease) both; }
+
+.brand-name {
+  display: inline;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.brand-name > span {
+  display: inline-block;
+  animation: letter-arrive 420ms var(--ease) backwards;
+}
+
+.magnetic {
+  display: inline-flex;
+  transition: transform 260ms var(--ease);
+  will-change: transform;
+}
+
+.wipe-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  background: var(--teal);
+  transform-origin: var(--wipe-x, 50%) var(--wipe-y, 50%);
+  animation: full-wipe 620ms var(--ease) both;
+}
+
+@keyframes seal-arrive {
+  from { opacity: 0; transform: translate3d(0, -16px, 0) scale(0.7) rotate(-10deg); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotate(0); }
+}
+
+@keyframes seal-breathe {
+  from { box-shadow: 0 0 0 0 color-mix(in oklch, var(--teal) 20%, transparent); }
+  to { box-shadow: 0 0 0 8px color-mix(in oklch, var(--teal) 0%, transparent); }
+}
+
+@keyframes seal-travel {
+  0% { opacity: 1; transform: translate3d(var(--pull-x), var(--pull-y), 0) scale(1) rotate(0); }
+  45% { opacity: 1; transform: translate3d(0, -8px, 0) scale(0.82) rotate(-14deg); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotate(0); }
+}
+
+@keyframes seal-stamp {
+  0% { transform: translate3d(0, 0, 0) scale(1) rotate(0); }
+  35% { transform: translate3d(0, 8px, 0) scale(1.12) rotate(-8deg); }
+  100% { transform: translate3d(0, 0, 0) scale(1) rotate(0); }
+}
+
+@keyframes letter-arrive {
+  from { opacity: 0; transform: translate3d(0, 8px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes full-wipe {
+  0% { opacity: 1; transform: scaleX(1); transform-origin: var(--wipe-x, 50%) center; }
+  48% { opacity: 1; transform: scaleX(1); transform-origin: right center; }
+  100% { opacity: 0; transform: scaleX(0); transform-origin: right center; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .brand-name > span:nth-child(1) { animation-delay: 40ms; }
+  .brand-name > span:nth-child(2) { animation-delay: 80ms; }
+  .brand-name > span:nth-child(3) { animation-delay: 120ms; }
+  .brand-name > span:nth-child(4) { animation-delay: 160ms; }
+  .brand-name > span:nth-child(5) { animation-delay: 200ms; }
+  .brand-name > span:nth-child(6) { animation-delay: 240ms; }
+  .brand-name > span:nth-child(7) { animation-delay: 280ms; }
+  .brand-name > span:nth-child(8) { animation-delay: 320ms; }
+  .brand-name > span:nth-child(9) { animation-delay: 360ms; }
+  .stagger > :nth-child(n + 7) { animation-delay: 280ms; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -290,6 +431,12 @@ g[role="button"]:hover circle { stroke-width: 3; }
     scroll-behavior: auto !important;
   }
   html { scroll-behavior: auto; }
-  .tour-card, .tour-rise, .tour-seal { animation: none !important; transform: none !important; }
-  .tour-spotlight, .tour-card-position, .tour-dot, .tour-quiet { transition: none !important; }
+  .tour-card, .tour-rise, .tour-seal,
+  .brand-seal, .brand-name > span, .magnetic, .wipe-overlay {
+    animation: none !important;
+    transform: none !important;
+  }
+  .wipe-overlay { display: none !important; }
+  .tour-spotlight, .tour-card-position, .tour-dot, .tour-quiet,
+  .brand-seal, .magnetic { transition: none !important; }
 }

@@ -267,11 +267,11 @@ export default function SpotlightTour({ steps, currentStep, onNext, onBack, onSk
               <button
                 onClick={onBack}
                 disabled={currentStep === 0}
-                className="btn btn-quiet min-h-11 px-5 py-2 text-sm"
+                className="btn btn-quiet min-h-11 px-6 py-2 text-sm"
               >
                 Back
               </button>
-              <button ref={nextRef} onClick={onNext} className="btn btn-primary min-h-11 px-5 py-2 text-sm">
+              <button ref={nextRef} onClick={onNext} className="btn btn-primary min-h-11 px-6 py-2 text-sm">
                 Next
               </button>
             </div>

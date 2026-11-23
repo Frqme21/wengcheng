@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
 import type { SimulatorAction } from '../shared/types';
 import AttackerTerminal from './components/AttackerTerminal';
+import BrandSeal from './components/BrandSeal';
 import ControlBar from './components/ControlBar';
 import DemoTokenControl from './components/DemoTokenControl';
 import MetricsBar from './components/MetricsBar';
@@ -91,6 +92,8 @@ export default function App() {
   const [actionBusy, setActionBusy] = useState(false);
   const [clock, setClock] = useState(() => new Date());
   const [tourStep, setTourStep] = useState<number | null>(null);
+  const [wipe, setWipe] = useState<{ id: number; x: number; y: number } | null>(null);
+  const wipeTimerRef = useRef<number | null>(null);
   const demoRunningRef = useRef(false);
   const tourStepRef = useRef<number | null>(null);
   const tourSessionIdRef = useRef<string | null>(null);
@@ -101,6 +104,10 @@ export default function App() {
   useEffect(() => {
     const timer = window.setInterval(() => setClock(new Date()), 1000);
     return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => () => {
+    if (wipeTimerRef.current !== null) window.clearTimeout(wipeTimerRef.current);
   }, []);
 
   useEffect(() => {
@@ -191,9 +198,21 @@ export default function App() {
     setActionBusy(false);
   }, [blockWithoutToken, clear, send]);
 
-  const onPlayDemo = useCallback(async () => {
+  const triggerWipe = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+    if (wipeTimerRef.current !== null) window.clearTimeout(wipeTimerRef.current);
+    const x = (event.clientX / Math.max(window.innerWidth, 1)) * 100;
+    const y = (event.clientY / Math.max(window.innerHeight, 1)) * 100;
+    setWipe({ id: Date.now(), x, y });
+    wipeTimerRef.current = window.setTimeout(() => {
+      setWipe(null);
+      wipeTimerRef.current = null;
+    }, 640);
+  }, []);
+
+  const onPlayDemo = useCallback(async (event?: MouseEvent<HTMLButtonElement>) => {
     if (demoRunningRef.current) return;
     if (blockWithoutToken('Unlock the demo with the lock icon to play the whole story.')) return;
+    if (event) triggerWipe(event);
     demoRunningRef.current = true;
     setActionBusy(true);
     clear();
@@ -229,7 +248,7 @@ export default function App() {
       setActionBusy(false);
       setDemoStatus(null);
     }
-  }, [blockWithoutToken, clear, runAction, send]);
+  }, [blockWithoutToken, clear, runAction, send, triggerWipe]);
 
   const onAnalyze = (sessionId: string, forceAi: boolean) => {
     if (blockWithoutToken('Reports need the demo token. Use the lock icon in the top bar.')) return;
@@ -283,9 +302,10 @@ export default function App() {
     if (index === 5) setDrawerOpen(false);
   }, [send]);
 
-  const startTour = useCallback(async () => {
+  const startTour = useCallback(async (event?: MouseEvent<HTMLButtonElement>) => {
     if (demoRunningRef.current || tourStepRef.current !== null) return;
     if (blockWithoutToken('Unlock the demo with the lock icon to take the tour.')) return;
+    if (event) triggerWipe(event);
     setActionBusy(true);
     clear();
     setSelectedId(null);
@@ -298,7 +318,7 @@ export default function App() {
     send({ type: 'reset' });
     await sleep(250);
     await enterTourStep(0);
-  }, [blockWithoutToken, clear, enterTourStep, send]);
+  }, [blockWithoutToken, clear, enterTourStep, send, triggerWipe]);
 
   const advanceTour = useCallback(async () => {
     const index = tourStepRef.current;
@@ -338,12 +358,14 @@ export default function App() {
       <header className="animate-fade sticky top-0 z-40 border-b border-line-soft bg-paper">
         <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-4 px-6 py-4">
           <div className="flex items-center gap-4">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-teal/40 bg-teal/[0.07]">
-              <span className="text-xl font-bold leading-none text-teal">瓮</span>
-            </div>
+            <BrandSeal engaged={engaged} busy={busy} traveling={wipe !== null} />
             <div>
-              <div className="text-base font-semibold leading-tight tracking-tight text-ink">Wèngchéng</div>
-              <div className="text-xs leading-tight text-faint">The fake city that wastes attackers' time</div>
+              <div className="brand-name" aria-label="Wèngchéng">
+                {'Wèngchéng'.split('').map((letter, index) => (
+                  <span key={`${letter}-${index}`} aria-hidden="true">{letter}</span>
+                ))}
+              </div>
+              <div className="text-xs leading-tight text-faint">A fake city behind one real gate</div>
             </div>
           </div>
 
@@ -373,16 +395,14 @@ export default function App() {
       </header>
 
       <main className="mx-auto max-w-[1800px] space-y-6 px-6 pb-12 pt-6">
-        <section className="surface animate-rise p-6 sm:p-8" aria-labelledby="story-title">
+        <section className="surface animate-rise px-6 py-16 sm:px-8" aria-labelledby="story-title">
           <div className="flex max-w-[65ch] flex-col gap-2">
             <div className="section-label">Live demo</div>
             <h1 id="story-title" className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold tracking-tight text-ink">
               A fake city behind a real front door
             </h1>
             <p className="text-sm leading-relaxed text-muted">
-              Normal visitors reach the real app. Suspicious requests are quietly sent to a convincing fake city.
-              Every button below sends a real HTTP request to this server. The left side shows the decision,
-              and the right side shows the reply the attacker receives.
+              Real requests in. Fake answers out. Watch the gate decide live.
             </p>
           </div>
           <div className="stagger mt-6 grid gap-4 md:grid-cols-3">
@@ -397,7 +417,7 @@ export default function App() {
         <ControlBar
           onSimulate={onSimulate}
           onPlayDemo={onPlayDemo}
-          onTakeTour={() => void startTour()}
+          onTakeTour={(event) => void startTour(event)}
           onReset={onReset}
           engaged={engaged}
           busy={busy}
@@ -458,6 +478,18 @@ export default function App() {
           onNext={() => void advanceTour()}
           onBack={backTour}
           onSkip={finishTour}
+        />
+      )}
+
+      {wipe && (
+        <div
+          key={wipe.id}
+          className="wipe-overlay"
+          aria-hidden="true"
+          style={{
+            '--wipe-x': `${wipe.x}%`,
+            '--wipe-y': `${wipe.y}%`,
+          } as CSSProperties}
         />
       )}
 

@@ -235,7 +235,7 @@ export default function SessionDrawer({
 
           {analysis && (
             <Section title="Analyst summary">
-              <div className="space-y-3 rounded-xl border border-plum/25 bg-plum/[0.035] p-4">
+              <div className="space-y-4 rounded-xl border border-plum/25 bg-plum/[0.035] p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-faint">
                   <span className="text-plum">{plainText(analysis.provider)}</span>
                   <span className="num">{analysis.confidence}% confidence</span>

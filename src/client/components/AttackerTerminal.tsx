@@ -49,7 +49,7 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
               <h3 id="attacker-title" className="text-sm font-semibold text-ink">What the attacker sees</h3>
             </div>
           </div>
-          <div className="flex gap-1 rounded-xl border border-line bg-paper p-1">
+          <div className="flex gap-2 rounded-xl border border-line bg-paper p-2">
             {(['replies', 'preview'] as const).map((item) => (
               <button
                 key={item}
@@ -70,7 +70,7 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
       </div>
 
       {current && (
-        <div className="animate-fade flex flex-wrap items-center justify-between gap-2 border-b border-line-soft bg-clay/[0.045] px-6 py-3 text-xs text-clay">
+        <div className="animate-fade flex flex-wrap items-center justify-between gap-2 border-b border-line-soft bg-clay/[0.045] px-6 py-4 text-xs text-clay">
           <span className="num truncate">Sending {current.label}: {current.path}</span>
           <span className="shrink-0">Waiting for reply</span>
         </div>
@@ -94,13 +94,13 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
             const tone = responseTone(response);
             return (
               <article key={response.id} className="surface-raised overflow-hidden">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line-soft px-4 py-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line-soft px-4 py-4">
                   <span className={`tag text-[11px] ${tone.className}`}>{tone.label}</span>
                   <span className="num text-[11px] text-faint">{response.latencyMs} ms</span>
                 </div>
                 <div className="flex flex-col gap-2 px-4 py-4">
                   <div className="num break-all text-[11px] leading-relaxed text-teal">
-                    {response.method} http://aegiscloud.invalid{response.path}
+                    {response.method} http://wengcheng.invalid{response.path}
                   </div>
                   <div className="num text-[11px] text-muted">HTTP/1.1 {response.status}</div>
                   {response.note && (
@@ -131,7 +131,7 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
             <div>
               <div className="mb-2 flex items-center justify-between gap-2 text-[11px] text-faint">
                 <span>Fake page preview</span>
-                <span className="num truncate">aegiscloud.invalid{latest.path}</span>
+                <span className="num truncate">wengcheng.invalid{latest.path}</span>
               </div>
               <iframe
                 title="Fake page preview"
@@ -142,11 +142,11 @@ export default function AttackerTerminal({ responses, pending, onInspect }: Prop
             </div>
           ) : (
             <div className="surface-raised overflow-hidden">
-              <div className="flex items-center gap-2 border-b border-line-soft px-4 py-3">
+              <div className="flex items-center gap-2 border-b border-line-soft px-4 py-4">
                 <span className="h-2 w-2 rounded-full bg-rust/70" />
                 <span className="h-2 w-2 rounded-full bg-clay/70" />
                 <span className="h-2 w-2 rounded-full bg-sage/70" />
-                <span className="num ml-3 truncate text-[11px] text-faint">aegiscloud.invalid{latest.path}</span>
+                <span className="num ml-3 truncate text-[11px] text-faint">wengcheng.invalid{latest.path}</span>
               </div>
               <pre className="term-line num max-h-[420px] overflow-auto p-4 text-[11px] leading-relaxed text-muted">
                 {formatBody(latest.body)}
