@@ -43,6 +43,7 @@ export default function Simulator() {
   const [token, setToken] = useState(() => readDemoToken());
   const [busy, setBusy] = useState(false);
   const busyTimer = useRef<number | null>(null);
+  const staticPreview = !import.meta.env.DEV && !(import.meta.env.VITE_API_BASE as string | undefined);
 
   useEffect(() => () => { if (busyTimer.current) window.clearTimeout(busyTimer.current); }, []);
 
@@ -62,13 +63,15 @@ export default function Simulator() {
   }, [gate, toggleGate]);
 
   const llmLabel = useMemo(() => {
-    if (!snapshot) return "Connecting...";
-    if (snapshot.llm.configured) {
-      const provider = snapshot.llm.mode === "nvidia" ? "NVIDIA NIM" : snapshot.llm.mode === "openrouter" ? "OpenRouter" : snapshot.llm.mode;
-      return `AI ready · ${provider} · ${snapshot.llm.model}`;
+    if (snapshot) {
+      if (snapshot.llm.configured) {
+        const provider = snapshot.llm.mode === "nvidia" ? "NVIDIA NIM" : snapshot.llm.mode === "openrouter" ? "OpenRouter" : snapshot.llm.mode;
+        return `AI ready · ${provider} · ${snapshot.llm.model}`;
+      }
+      return "Offline procedural mode · no API key needed";
     }
-    return "Offline procedural mode · no API key needed";
-  }, [snapshot]);
+    return staticPreview ? "Backend not connected" : "Connecting...";
+  }, [snapshot, staticPreview]);
 
   function markBusy() {
     setBusy(true);
@@ -114,13 +117,24 @@ export default function Simulator() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <span className={`h-2 w-2 rounded-full ${connected ? "bg-pass" : "bg-accent"}`} />
-                <span className="text-xs font-semibold tracking-wider text-muted uppercase">{connected ? "Live backend connected" : "Connecting to backend"}</span>
+                <span className="text-xs font-semibold tracking-wider text-muted uppercase">
+                  {connected ? "Live backend connected" : staticPreview ? "Static preview" : "Connecting to backend"}
+                </span>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
                 <span className="rounded-full border border-line px-2 py-2">{llmLabel}</span>
                 <span className={`rounded-full border px-2 py-2 ${gate ? "border-accent/50 text-accent" : "border-line text-muted"}`}>{gate ? "403 gate on" : "403 gate off"}</span>
               </div>
             </div>
+
+            {staticPreview && !connected && (
+              <div className="rounded-xl border border-accent/30 bg-accent/5 p-4 text-sm leading-relaxed text-muted">
+                <p className="font-semibold text-ink">Static frontend preview</p>
+                <p className="mt-2">
+                  This Pages deployment shows the Wèngchéng interface. To run live requests and NVIDIA NIM deception, start the backend and rebuild with <code className="rounded bg-deep/60 px-1 py-0.5 text-ink">VITE_API_BASE=https://your-backend-url</code>.
+                </p>
+              </div>
+            )}
 
             <div className="grid gap-2 sm:grid-cols-2">
               {ACTIONS.map((a) => {

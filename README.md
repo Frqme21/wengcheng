@@ -1,38 +1,30 @@
 <div align="center">
+  <img src="public/og.png" alt="Wèngchéng dashboard" width="920" />
+  <h1>Wèngchéng / 瓮城</h1>
+  <p><strong>A fake city behind a real front door.</strong></p>
+  <p>Normal users reach the real app. Attackers get convincing decoys. AI wakes up only when the request is novel.</p>
 
-<img src="public/og.png" alt="Wèngchéng" width="720" />
-
-# Wèngchéng / 瓮城
-
-**A fake city behind a real front door.**
-
-Adaptive cyber-deception that lets normal users through, diverts attackers into convincing decoys, and wakes AI only when it matters.
-
-[![Build](https://img.shields.io/badge/build-passing-2ea043?style=for-the-badge)](#quick-start)
-[![NVIDIA NIM](https://img.shields.io/badge/NVIDIA-NIM-76b900?style=for-the-badge&logo=nvidia&logoColor=white)](#ai--nvidia-nim)
-[![Node](https://img.shields.io/badge/node-20%2B-339933?style=for-the-badge&logo=node.js&logoColor=white)](#quick-start)
-[![License](https://img.shields.io/badge/demo-GenHacks-f97316?style=for-the-badge)](#for-judges)
-
+  <p>
+    <a href="https://c8b7bb6b.wengcheng.pages.dev"><img src="https://img.shields.io/badge/live-static_preview-f97316?style=for-the-badge" alt="Live preview" /></a>
+    <img src="https://img.shields.io/badge/NVIDIA-NIM-76b900?style=for-the-badge&logo=nvidia&logoColor=white" alt="NVIDIA NIM" />
+    <img src="https://img.shields.io/badge/node-20%2B-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node 20+" />
+  </p>
 </div>
 
----
+## What Wèngchéng does
 
-## What it does
+Wèngchéng sits in front of a protected portal called Aegis Cloud. Every request gets a fast deterministic verdict before any model call happens.
 
-Wèngchéng sits in front of a protected portal (Aegis Cloud). Every request gets a fast deterministic verdict:
+| Verdict | What the attacker sees | AI cost |
+|---|---|---:|
+| PASS | The real portal | 0 |
+| DIVERT | A cached or procedural decoy | 0 on cache hit |
+| WAKE | A newly synthesized decoy for a novel probe | 1 wakeup on cache miss |
+| BLOCKED | A 403 when the portcullis gate is on | 0 |
 
-| Verdict | What happens | AI cost |
-|---|---:|---:|
-| **PASS** | Legitimate traffic reaches the real portal | 0 tokens |
-| **DIVERT** | Known attacks get cached/deterministic decoys | 0 tokens on cache hit |
-| **WAKE** | Novel unknown probes can synthesize a decoy with AI | Only on novel cache miss |
-| **BLOCKED** | Portcullis/403 gate hard-blocks hostile sessions | 0 tokens |
+The useful part is the split: clean traffic stays cheap, and the expensive model call only happens when the sentinel sees something new.
 
-**The point:** normal traffic stays cheap and fast. Attackers get realistic fake data, tarpit latency, and incident reports.
-
----
-
-## Quick start
+## Try it locally
 
 ```bash
 npm install
@@ -40,79 +32,51 @@ cp .env.example .env
 npm run dev
 ```
 
-Open:
+- Dashboard: http://localhost:3000
+- Portal: http://localhost:3000/portal
+- Health: http://localhost:3000/health
 
-- **Dashboard:** http://localhost:3000
-- **Protected portal:** http://localhost:3000/portal
-- **Health:** http://localhost:3000/health
+It works without API keys. With no keys, Wèngchéng uses offline procedural decoys and reports.
 
-No API keys required. Without keys, Wèngchéng runs in **offline procedural mode** with deterministic decoys and reports.
+## NVIDIA NIM
 
----
-
-## AI / NVIDIA NIM
-
-Wèngchéng uses AI only when needed (novel decoy synthesis / deeper analysis). Configure via env vars:
+Set these in `.env` on the backend:
 
 ```bash
-# .env
-NVIDIA_API_KEY=nvapi-...
+NVIDIA_API_KEY=your_key_here
 NVIDIA_MODEL=nvidia/nemotron-3-super-120b-a12b
-# Optional
 LLM_TIMEOUT_MS=90000
+# optional
 NVIDIA_ENABLE_THINKING=true
 ```
 
-Provider behavior:
+If `NVIDIA_API_KEY` is set, the backend uses NVIDIA NIM. If `OPENROUTER_API_KEY` is set instead, it uses OpenRouter. If neither is set, it stays in offline procedural mode.
 
-- **NVIDIA_API_KEY set** → NVIDIA NIM (`https://integrate.api.nvidia.com/v1`)
-- **OPENROUTER_API_KEY set** (and no NVIDIA key) → OpenRouter
-- **No keys** → offline procedural fallback (still fully demoable)
+Do not commit keys. Use `.env` locally and secrets in your deployment platform.
 
-> **Security:** never commit API keys. Use `.env` locally, and `wrangler secret put` / platform secrets in deployment.
+## Live frontend preview
 
----
-
-## Demo flow (for judges)
-
-1. Start the app: `npm run dev`
-2. Open the dashboard and click **Take the guided tour** or **Run the full demo**.
-3. Send a **Novel probe** with **403 gate off** to see AI decoy synthesis (when NIM is configured).
-4. Turn **403 gate on** to show hard blocking.
-5. Open a hostile session and generate a report.
-
-If `DEMO_ADMIN_TOKEN` is set, use the lock icon in the UI or open `/?token=YOUR_TOKEN`.
-
----
-
-## Redesign frontend
-
-`redesign/` contains a clean standalone frontend (Vite + React + Tailwind + M3 switch) wired to the real backend.
+The static Pages frontend is deployed at https://c8b7bb6b.wengcheng.pages.dev. It shows the interface and explains how to connect a live backend. To make it fully live, deploy the backend and rebuild the frontend with:
 
 ```bash
-# terminal 1: backend
-npm run dev
-
-# terminal 2: redesign frontend
 cd redesign
-npm install
-npm run dev
+VITE_API_BASE=https://your-backend.example.com npm run build
+npx wrangler pages deploy dist --project-name wengcheng --branch main
 ```
 
-The redesign dev server proxies `/api` and `/ws` to `http://localhost:3000` by default. For a deployed backend, set:
+## Repo layout
 
-```bash
-# redesign/.env
-VITE_API_BASE=https://your-backend.example.com
+```text
+src/server/      Express backend, sentinel, deception, LLM, realtime, portal
+src/client/      Main dashboard frontend
+src/shared/      Shared wire types
+redesign/        Clean standalone frontend wired to the real backend
+scripts/         Attacker simulation and submission verification
 ```
 
----
+## Backend deployment
 
-## Deploy
-
-### Backend (Node/Express/WS)
-
-The backend is a stateful Node process. Deploy it to any Node/Docker host.
+The backend is a Node process with Express and WebSockets. Cloudflare Pages can host the static frontend, but the backend needs a Node runtime.
 
 ```bash
 npm run build
@@ -126,79 +90,6 @@ docker build -t wengcheng .
 docker run -p 3000:3000 --env-file .env wengcheng
 ```
 
-### Frontend (Cloudflare Pages static)
-
-The `redesign/` frontend can be deployed as static Pages. It must point at a running backend via `VITE_API_BASE`.
-
-```bash
-cd redesign
-npm install
-VITE_API_BASE=https://your-backend.example.com npm run build
-npx wrangler pages deploy dist --project-name wengcheng-redesign
-```
-
-Plaintext vars go in config; secrets go through Wrangler commands:
-
-```bash
-# plaintext vars (deploy-time / config)
-# edit wrangler.toml [vars]
-
-# secrets (never commit)
-npx wrangler secret put NVIDIA_API_KEY
-# or bulk
-npx wrangler secret bulk .env.production
-```
-
-> Note: Cloudflare Pages static hosting serves the frontend only. The Wèngchéng deception backend needs a Node runtime for Express + WebSocket + in-memory state.
-
----
-
-## Architecture
-
-```text
-Browser / Attacker
-        │
-        ▼
-┌─────────────────────┐
-│  Wèngchéng Sentinel │  deterministic, fast, no LLM
-└─────────┬───────────┘
-          │
-   ┌──────┴──────┐
-   ▼             ▼
-PASS           SUSPICIOUS
-   │             │
-   ▼             ▼
-Aegis Cloud    Decoy Cache / Procedural Decoy
-(real portal)        │
-                     ├── cache hit: 0 tokens
-                     └── novel miss: NVIDIA NIM synthesis → cache
-```
-
-Key paths:
-
-```text
-src/server/        # Express, sentinel, deception, LLM, realtime, portal
-src/client/        # main dashboard frontend
-src/shared/        # wire types shared by server/client
-redesign/          # clean standalone frontend wired to real backend
-scripts/           # attacker + submission verification
-```
-
----
-
-## Useful commands
-
-```bash
-npm run dev              # backend + frontend dev
-npm run build            # typecheck + build frontend + build server
-npm run verify:submission
-npm run attacker         # external attacker simulation
-```
-
----
-
 ## For judges
 
-**What to look for:** real requests, real gate decisions, real decoys, and real cost-aware AI usage. Normal traffic stays free; novel attacks can trigger NVIDIA NIM; cache/replay keeps repeat attacks cheap.
-
-**Built for GenHacks.** Wèngchéng means “urn city” - an outer defensive city wall that traps intruders before they reach the inner gate.
+Run `npm run dev`, open the dashboard, and click **Take the guided tour**. Then turn the 403 gate off, send a **Novel probe**, and watch the AI wakeup counter change when NIM is configured. The cache hit after that shows the cost-saving path.
